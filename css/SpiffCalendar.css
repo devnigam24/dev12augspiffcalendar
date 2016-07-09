@@ -98,7 +98,7 @@ flex: 1;
 flex-direction: column;
 font-size: .9em;
 display: flex;
-padding: 3px 5px;
+padding: 3px;
 }
 
 .SpiffCalendar .event {
