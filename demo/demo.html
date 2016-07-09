@@ -22,21 +22,32 @@ $(document).ready(function() {
     var calendar = new SpiffCalendar($('#calendar'), {
         event_api: function(start_date, end_date, success_cb) {
             success_cb({
-                '2016-07-09': [
-                    {name: 'Test1'},
-                    {time: '10:00', name: 'Test2'}
-                ],
-                '2016-07-19': [
-                    {name: 'Foo'},
-                    {name: 'Bar'}
-                ]
+                '2016-07-09': {
+                    events: [
+                        {name: 'Test1'},
+                        {time: '10:00', name: 'Test2'}
+                    ],
+                    footnote: {
+                        text: 'day before tomorrow'
+                    }
+                },
+				'2016-07-19': {
+					events: [
+						{name: 'Foo'},
+						{name: 'Bar'}
+					]
+				}
             });
         },
-        event_renderer: function(ev) {
-            return ev.name;
+        event_renderer: function(container, event_data) {
+            if (event_data.time)
+                return event_data.time + ' ' + event_data.name;
+		    return $(`<span class="fancy"></span>`).text(event_data.name);
         },
-        footnote_renderer: function(e) {
-            return 'Special day';
+        footnote_renderer: function(footnote_data) {
+			if (!footnote_data)
+				return '';
+            return footnote_data.text;
         },
         add_popup: function() {
             var popup = $('#popup');

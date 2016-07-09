@@ -115,7 +115,7 @@ var SpiffCalendar = function(div, options) {
         throw new Error('selector needs to match exactly one element');
     this._div.addClass('SpiffCalendar');
 
-    this._calendar_event = function(date) {
+    this._calendar_event = function(event_data) {
         var html = $(`<div class="event"></div>`);
         html.draggable({
             appendTo: this._div,
@@ -135,7 +135,9 @@ var SpiffCalendar = function(div, options) {
                 $(this).show();
             }
         });
-        html.append(settings.event_renderer(date));
+        if (event_data.time)
+            html.addClass('timed');
+        html.append(settings.event_renderer(html, event_data));
         return html;
     };
 
@@ -153,7 +155,6 @@ var SpiffCalendar = function(div, options) {
         var date_str = year + '-' + (date.getMonth()+1) + '-' + date.getDate();
         html.attr('data-date', date_str);
         html.find(".day_number").append(date.getDate());
-        html.find(".footnote").append(settings.footnote_renderer(date.getDate()));
 
         today = new Date();
         if (date.toDateString() == today.toDateString())
@@ -243,12 +244,16 @@ var SpiffCalendar = function(div, options) {
 
         // Trigger event refresh.
         settings.event_api(thestart, thelast, function(data) {
-            $.each(data, function(date, event_list) {
-                var events = table.find('*[data-date="' + date + '"] .events');
+            $.each(data, function(date, day_data) {
+                date = date.replace(/-0/g, '-');
+                var day_div = table.find('*[data-date="' + date + '"]');
+                var events = day_div.find('.events');
                 events.empty();
-                $.each(event_list, function(index, ev) {
+                $.each(day_data.events, function(index, ev) {
                     events.append(that._calendar_event(ev));
                 });
+                var footnote = settings.footnote_renderer(day_data.footnote);
+                day_div.find(".footnote").append(footnote);
             });
         });
 

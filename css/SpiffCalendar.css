@@ -106,9 +106,13 @@ flex: 0;
 margin-bottom: 1px;
 border-radius: 3px;
 z-index: 12;
-background-color: lightgreen;
 color: #666;
-text-align: center;
+padding: 0 .2em;
+text-align: left;
+}
+
+.SpiffCalendar .event:not(.timed) {
+background-color: lightgreen;
 }
 
 .SpiffCalendarPopup.qtip {
