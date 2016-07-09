@@ -149,7 +149,9 @@ var SpiffCalendar = function(div, options) {
                 </div>
             </td>`);
 
-        html.attr('data-date', date.toISOString().replace(/T.*/i, ''));
+        var year = date.getFullYear();
+        var date_str = year + '-' + (date.getMonth()+1) + '-' + date.getDate();
+        html.attr('data-date', date_str);
         html.find(".day_number").append(date.getDate());
         html.find(".footnote").append(settings.footnote_renderer(date.getDate()));
 
