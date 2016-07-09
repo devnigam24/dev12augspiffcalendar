@@ -107,7 +107,10 @@ var SpiffCalendar = function(div, options) {
     var that = this;
     var settings = $.extend(true, {
         start: undefined,
+        last: undefined,
+        event_api: function() { return {}; },
         event_renderer: function(e) { return e; },
+        footnote_renderer: function(e) { return e; },
         add_popup: undefined
     }, options);
 
