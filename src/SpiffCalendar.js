@@ -269,9 +269,6 @@ var SpiffCalendar = function(div, options) {
                 },
                 style: {
                     classes: 'SpiffCalendarPopup qtip-light qtip-shadow',
-                    tip: {
-                        corner: 'bottom center'
-                    }
                 },
                 show: {
                     event: 'click',
@@ -284,6 +281,7 @@ var SpiffCalendar = function(div, options) {
                 position: {
                     my: 'bottom center',
                     target: 'mouse',
+                    viewport: table,
                     adjust: {
                         mouse: false
                     }
