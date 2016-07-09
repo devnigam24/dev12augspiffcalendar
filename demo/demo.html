@@ -18,12 +18,25 @@
 <script src="../src/SpiffCalendar.js" type="text/javascript"></script>
 <script type="text/javascript">
 $(document).ready(function() {
+
     var calendar = new SpiffCalendar($('#calendar'), {
-        event_renderer: function(e) {
-			return e;
+        event_api: function(start_date, end_date, success_cb) {
+            success_cb({
+                '2016-07-09': [
+                    {name: 'Test1'},
+                    {time: '10:00', name: 'Test2'}
+                ],
+                '2016-07-19': [
+                    {name: 'Foo'},
+                    {name: 'Bar'}
+                ]
+            });
+        },
+        event_renderer: function(ev) {
+            return ev.name;
         },
         footnote_renderer: function(e) {
-			return 'Special day';
+            return 'Special day';
         },
         add_popup: function() {
             var popup = $('#popup');

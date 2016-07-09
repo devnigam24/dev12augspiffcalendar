@@ -149,9 +149,8 @@ var SpiffCalendar = function(div, options) {
                 </div>
             </td>`);
 
+        html.attr('data-date', date.toISOString().replace(/T.*/i, ''));
         html.find(".day_number").append(date.getDate());
-        html.find(".events").append(this._calendar_event("one"));
-        html.find(".events").append(this._calendar_event("two"));
         html.find(".footnote").append(settings.footnote_renderer(date.getDate()));
 
         today = new Date();
@@ -233,11 +232,23 @@ var SpiffCalendar = function(div, options) {
                                settings.last.getDate());
         thelast.setDate(thelast.getDate() + 6 - thelast.getDay());
 
+        // Update the user interface.
         while(thestart <= thelast) {
             table.append(this._calendar_week(settings.start, settings.last, thestart));
             var newDate = thestart.setDate(thestart.getDate() + 6);
             thestart = new Date(newDate);
         }
+
+        // Trigger event refresh.
+        settings.event_api(thestart, thelast, function(data) {
+            $.each(data, function(date, event_list) {
+                var events = table.find('*[data-date="' + date + '"] .events');
+                events.empty();
+                $.each(event_list, function(index, ev) {
+                    events.append(that._calendar_event(ev));
+                });
+            });
+        });
 
         // Connect navbar button events.
         this._div.find("#previous").click(this.to_previous_month);
