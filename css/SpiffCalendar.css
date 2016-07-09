@@ -42,7 +42,7 @@ color: #666;
 .SpiffCalendar table th {
 text-transform: uppercase;
 font-size: 1.2em;
-color: #4BCBF2;
+color: #4bcbf2;
 padding: 1em;
 }
 
@@ -67,12 +67,8 @@ background: #e87722;
 background: #f0e0d0;
 }
 
-.SpiffCalendar .day.filler {
-border: 1px solid #f4f4f4;
-color: #dfdfdf;
-}
-
-.SpiffCalendar .day.filler .day_number {
+.SpiffCalendar .day.filler>* {
+opacity: .5;
 }
 
 .SpiffCalendar .day .wrapper {
@@ -88,20 +84,16 @@ text-align: left;
 padding: 4px 2px 0 4px;
 }
 
-.SpiffCalendar .day .balance {
+.SpiffCalendar .day .footnote {
 display: none;
 font-size: .9em;
 }
 
-.SpiffCalendar .day :hover .balance {
+.SpiffCalendar .day :hover .footnote {
 display: block;
 }
 
-.SpiffCalendar .positive {
-background: #aBDBFe;
-}
-
-.SpiffCalendar .transactions {
+.SpiffCalendar .events {
 flex: 1;
 flex-direction: column;
 font-size: .9em;
@@ -109,26 +101,14 @@ display: flex;
 padding: 3px 5px;
 }
 
-.SpiffCalendar .transaction {
+.SpiffCalendar .event {
 flex: 0;
-display: flex;
-}
-
-.SpiffCalendar .transaction_name {
-flex: 1;
-text-align: left;
-}
-
-.SpiffCalendar .transaction_value {
-flex: 1;
-text-align: right;
-}
-
-.SpiffCalendar .difference {
-font-size: .8em;
-font-style: italic;
-margin-bottom: 2px;
-display: none;
+margin-bottom: 1px;
+border-radius: 3px;
+z-index: 12;
+background-color: lightgreen;
+color: #666;
+text-align: center;
 }
 
 .SpiffCalendarPopup.qtip {

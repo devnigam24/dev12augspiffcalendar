@@ -107,6 +107,7 @@ var SpiffCalendar = function(div, options) {
     var that = this;
     var settings = $.extend(true, {
         start: undefined,
+        event_renderer: function(e) { return e; },
         add_popup: undefined
     }, options);
 
@@ -114,16 +115,27 @@ var SpiffCalendar = function(div, options) {
         throw new Error('selector needs to match exactly one element');
     this._div.addClass('SpiffCalendar');
 
-    this._calendar_transaction = function(date) {
-        var html = $(`
-              <div class="transaction">
-                  <div class="transaction_name"></div>
-                  <div class="transaction_value"></div>
-              </div>`);
-
-        html.find(".transaction_name").append("Groceries");
-        html.find(".transaction_value").append("&euro;20.00");
-
+    this._calendar_event = function(date) {
+        var html = $(`<div class="event"></div>`);
+        html.draggable({
+            appendTo: this._div,
+            helper: function(e, ui) {
+                var original = $(e.target).closest(".ui-draggable");
+                return $(this).clone().css({width: original.width()});
+            },
+            revert: "invalid",
+            cursor: "move",
+            containment: this._div.find('.calendar'),
+            revert: 'invalid',
+            revertDuration: 100,
+            start: function (e, ui) {
+                $(this).hide();
+            },
+            stop: function (event, ui) {
+                $(this).show();
+            }
+        });
+        html.append(settings.event_renderer(date));
         return html;
     };
 
@@ -132,17 +144,15 @@ var SpiffCalendar = function(div, options) {
             <td class="day">
                 <div class="wrapper">
                     <div class="day_number"></div>
-                    <div class="transactions"></div>
-                    <div class="balance positive"></div>
-                    <div class="difference"></div>
+                    <div class="events"></div>
+                    <div class="footnote"></div>
                 </div>
             </td>`);
 
         html.find(".day_number").append(date.getDate());
-        html.find(".transactions").append(this._calendar_transaction(date.getDate()));
-        html.find(".transactions").append(this._calendar_transaction(date.getDate()));
-        html.find(".balance").append("Remaining balance: &euro;2000.00");
-        html.find(".difference").append("Subtotal: &euro;0.00");
+        html.find(".events").append(this._calendar_event("one"));
+        html.find(".events").append(this._calendar_event("two"));
+        html.find(".footnote").append(settings.footnote_renderer(date.getDate()));
 
         today = new Date();
         if (date.toDateString() == today.toDateString())

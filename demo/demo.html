@@ -19,6 +19,12 @@
 <script type="text/javascript">
 $(document).ready(function() {
     var calendar = new SpiffCalendar($('#calendar'), {
+        event_renderer: function(e) {
+			return e;
+        },
+        footnote_renderer: function(e) {
+			return 'Special day';
+        },
         add_popup: function() {
             var popup = $('#popup');
             var button = $('#popup button');
