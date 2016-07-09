@@ -1,0 +1,55 @@
+body,
+html {
+margin: 0;
+padding: 0;
+color: #e8ecf0;
+background: white;
+}
+
+* {
+-webkit-box-sizing: border-box;
+-moz-box-sizing: border-box;
+box-sizing: border-box;
+}
+
+#wrap {
+margin: 0 auto;
+width: 1020px;
+}
+
+#header {
+padding: .8em 2em;
+margin-bottom: 15px;
+background: #2a5350;
+border-bottom: 1px solid #033;
+}
+
+#header h1 {
+margin: 0;
+padding: 0;
+}
+
+#popup {
+margin: 0;
+padding: 0;
+width: 30em;
+}
+
+#popup input {
+display: block;
+width: 100%;
+margin: 0 auto .5em auto;
+padding: .4em;
+border: 1px solid #ddd;
+}
+
+#popup-buttons {
+text-align: right;
+margin-top: 1em;
+}
+
+#popup button {
+margin-left: .5em;
+padding: .4em;
+border: 1px solid #ccc;
+}

@@ -1,0 +1,147 @@
+.SpiffCalendar {
+-webkit-box-sizing: border-box;
+-moz-box-sizing: border-box;
+box-sizing: border-box;
+}
+
+.SpiffCalendar #navbar {
+background: #eee;
+padding: 0 6px;
+display: flex;
+color: #666;
+}
+
+.SpiffCalendar #navbar h2 {
+flex: 1;
+font-size: 1.4em;
+text-transform: uppercase;
+margin: .4em .5em;
+}
+
+.SpiffCalendar #navbar input {
+margin: .2em;
+border: 0;
+font-family: SimHei;
+font-size: 1.8em;
+background: #eee;
+padding: 0 6px;
+display: flex;
+}
+
+.SpiffCalendar #navbar input:hover {
+background: #fefefe;
+}
+
+.SpiffCalendar table {
+width: 100%;
+table-layout: fixed;
+border-spacing: 8px;
+color: #666;
+}
+
+.SpiffCalendar table th {
+text-transform: uppercase;
+font-size: 1.2em;
+color: #4BCBF2;
+padding: 1em;
+}
+
+.SpiffCalendar .day {
+vertical-align: top;
+text-align: center;
+height: 9em;
+overflow: hidden;
+border: 1px solid #ddd;
+padding: 0;
+}
+
+.SpiffCalendar .day:hover {
+background: #f9f9f9;
+}
+
+.SpiffCalendar .day.today {
+background: #e87722;
+}
+
+.SpiffCalendar .day.today:hover {
+background: #f0e0d0;
+}
+
+.SpiffCalendar .day.filler {
+border: 1px solid #f4f4f4;
+color: #dfdfdf;
+}
+
+.SpiffCalendar .day.filler .day_number {
+}
+
+.SpiffCalendar .day .wrapper {
+height: 100%;
+display: flex;
+flex-direction: column;
+}
+
+.SpiffCalendar .day .day_number {
+font-weight: bold;
+font-size: 1.4em;
+text-align: left;
+padding: 4px 2px 0 4px;
+}
+
+.SpiffCalendar .day .balance {
+display: none;
+font-size: .9em;
+}
+
+.SpiffCalendar .day :hover .balance {
+display: block;
+}
+
+.SpiffCalendar .positive {
+background: #aBDBFe;
+}
+
+.SpiffCalendar .transactions {
+flex: 1;
+flex-direction: column;
+font-size: .9em;
+display: flex;
+padding: 3px 5px;
+}
+
+.SpiffCalendar .transaction {
+flex: 0;
+display: flex;
+}
+
+.SpiffCalendar .transaction_name {
+flex: 1;
+text-align: left;
+}
+
+.SpiffCalendar .transaction_value {
+flex: 1;
+text-align: right;
+}
+
+.SpiffCalendar .difference {
+font-size: .8em;
+font-style: italic;
+margin-bottom: 2px;
+display: none;
+}
+
+.SpiffCalendarPopup.qtip {
+border: 1px solid #bbb;
+padding: 1em;
+}
+
+.SpiffCalendarPopup .qtip-content {
+padding: 0;
+}
+
+.SpiffCalendarPopup.qtip,
+.SpiffCalendarPopup .qtip-content {
+max-width: none;
+max-height: none;
+}
