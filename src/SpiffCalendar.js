@@ -339,8 +339,8 @@ var SpiffCalendar = function(div, options) {
 
         // Trigger event refresh.
         settings.event_api(thestart, thelast, function(data) {
-            $.each(data, function(date, day_data) {
-                date = date.replace(/-0/g, '-');
+            $.each(data, function(index, day_data) {
+                var date = day_data.date.replace(/-0/g, '-');
                 var day_div = table.find('*[data-date="' + date + '"]');
                 var events = day_div.find('.events');
                 events.empty();

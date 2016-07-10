@@ -21,8 +21,9 @@ $(document).ready(function() {
 
     var calendar = new SpiffCalendar($('#calendar'), {
         event_api: function(start_date, end_date, success_cb) {
-            success_cb({
-                '2016-07-09': {
+            success_cb([
+                {
+                    date: '2016-07-09',
                     events: [
                         {name: 'Test1'},
                         {time: '10:00', name: 'Test2'}
@@ -31,13 +32,14 @@ $(document).ready(function() {
                         text: 'day before tomorrow'
                     }
                 },
-                '2016-07-19': {
+                {
+                    date: '2016-07-19',
                     events: [
                         {name: 'Foo'},
                         {name: 'Bar'}
                     ]
                 }
-            });
+            ]);
         },
         event_renderer: function(container, event_data) {
             if (event_data.time)
@@ -69,7 +71,7 @@ $(document).ready(function() {
         on_add_event: function(thedate, container, on_success) {
             var name = container.find('#popup-add-name').val();
             console.log('Add:', thedate, name);
-			on_success({name: name, time: undefined});
+            on_success({name: name, time: undefined});
         },
         on_move_event: function(event_data, target_date) {
             console.log('Moved:', event_data, target_date);
