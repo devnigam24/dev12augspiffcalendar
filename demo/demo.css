@@ -29,13 +29,13 @@ margin: 0;
 padding: 0;
 }
 
-#popup {
+.popup {
 margin: 0;
 padding: 0;
 width: 30em;
 }
 
-#popup input {
+.popup input {
 display: block;
 width: 100%;
 margin: 0 auto .5em auto;
@@ -43,12 +43,12 @@ padding: .4em;
 border: 1px solid #ddd;
 }
 
-#popup-buttons {
+.popup #popup-buttons {
 text-align: right;
 margin-top: 1em;
 }
 
-#popup button {
+.popup button {
 margin-left: .5em;
 padding: .4em;
 border: 1px solid #ccc;

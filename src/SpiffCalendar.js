@@ -111,8 +111,59 @@ var SpiffCalendar = function(div, options) {
         event_api: function() { return {}; },
         event_renderer: function(e) { return e; },
         footnote_renderer: function(e) { return e; },
-        add_popup: undefined
+        on_move_event: function() {},
+        event_detail_renderer: function(event_data) {
+            var html = $(`
+                <div id="popup-detail" class="default-popup" style="display: none">
+                    <div>
+                        <label for="popup-detail-name">Event: </label>
+                        <span id="popup-detail-name"></span>
+                    </div>
+                    <div>
+                        <label for="popup-detail-name">When: </label>
+                        <span id="popup-detail-time"></span>
+                    </div>
+                </div>`);
+			var time = event_data.time ? event_data.time : 'all day';
+			html.find('#popup-detail-name').text(event_data.name);
+			html.find('#popup-detail-time').text(time);
+            return html;
+        },
+        event_add_renderer: function() {
+            var html = $(`
+                <div id="popup-add" class="default-popup" style="display: none">
+                    <input type="text" placeholder="Event"/>
+                    <div id="popup-buttons">
+                        <button>Create</button>
+                    </div>
+                </div>`);
+            html.find('button').click(function() {
+                $('.qtip').hide();
+            });
+            return html;
+        },
     }, options);
+    var qtip_settings = {
+        style: {
+            classes: 'SpiffCalendarPopup qtip-light qtip-shadow',
+        },
+        show: {
+            event: 'click',
+            solo: true
+        },
+        hide: {
+            fixed: true,
+            event: 'unfocus'
+        },
+        position: {
+            my: 'bottom center',
+            target: 'mouse',
+            viewport: this._div,
+            adjust: {
+                mouse: false
+            }
+        }
+    };
 
     if (this._div.length != 1)
         throw new Error('selector needs to match exactly one element');
@@ -120,6 +171,23 @@ var SpiffCalendar = function(div, options) {
 
     this._calendar_event = function(event_data) {
         var html = $(`<div class="event"></div>`);
+        html.data('event', event_data);
+        if (event_data.time)
+            html.addClass('timed');
+
+        // Add a popup for viewing event details.
+        if (settings.event_detail_renderer) {
+            html.qtip($.extend(true, qtip_settings, {
+                content: {
+                    text: function() { return settings.event_detail_renderer(event_data); }
+                },
+            }));
+            html.click(function() {
+                event.stopPropagation();
+            });
+        }
+
+        // Make events draggable.
         html.draggable({
             appendTo: this._div,
             helper: function(e, ui) {
@@ -138,8 +206,8 @@ var SpiffCalendar = function(div, options) {
                 $(this).show();
             }
         });
-        if (event_data.time)
-            html.addClass('timed');
+
+        // Render the event content.
         html.append(settings.event_renderer(html, event_data));
         return html;
     };
@@ -153,6 +221,14 @@ var SpiffCalendar = function(div, options) {
                     <div class="footnote"></div>
                 </div>
             </td>`);
+        html.droppable({
+            drop: function(e, ui) {
+                var event_data = ui.draggable.data('event');
+                ui.draggable.remove();
+                settings.on_move_event(event_data, $(this).data('date'));
+                $(this).find('.events').append(that._calendar_event(event_data));
+            }
+        });
 
         var year = date.getFullYear();
         var date_str = year + '-' + (date.getMonth()+1) + '-' + date.getDate();
@@ -265,31 +341,17 @@ var SpiffCalendar = function(div, options) {
         this._div.find("#current").click(this.to_today);
         this._div.find("#next").click(this.to_next_month);
 
-        if (settings.add_popup) {
-            table.find(".day").qtip({
-                content: {
-                    text: settings.add_popup
-                },
-                style: {
-                    classes: 'SpiffCalendarPopup qtip-light qtip-shadow',
-                },
-                show: {
-                    event: 'click',
-                    solo: true
-                },
-                hide: {
-                    fixed: true,
-                    event: 'unfocus'
-                },
-                position: {
-                    my: 'bottom center',
-                    target: 'mouse',
-                    viewport: table,
-                    adjust: {
-                        mouse: false
+        if (settings.event_add_renderer) {
+            table.find(".day").qtip($.extend(true, qtip_settings, {
+                events: {
+                    visible: function() {
+                        $(this).find('input:first').focus();
                     }
+                },
+                content: {
+                    text: settings.event_add_renderer
                 }
-            });
+            }));
         }
     };
 

@@ -31,31 +31,43 @@ $(document).ready(function() {
                         text: 'day before tomorrow'
                     }
                 },
-				'2016-07-19': {
-					events: [
-						{name: 'Foo'},
-						{name: 'Bar'}
-					]
-				}
+                '2016-07-19': {
+                    events: [
+                        {name: 'Foo'},
+                        {name: 'Bar'}
+                    ]
+                }
             });
         },
         event_renderer: function(container, event_data) {
             if (event_data.time)
                 return event_data.time + ' ' + event_data.name;
-		    return $(`<span class="fancy"></span>`).text(event_data.name);
+            return $(`<span class="fancy"></span>`).text(event_data.name);
         },
         footnote_renderer: function(footnote_data) {
-			if (!footnote_data)
-				return '';
+            if (!footnote_data)
+                return '';
             return footnote_data.text;
         },
-        add_popup: function() {
-            var popup = $('#popup');
-            var button = $('#popup button');
+        /*
+        event_detail_renderer: function(event_data) {
+            var popup = $('#popup-detail');
+            var time = event_data.time ? event_data.time : 'all day';
+            popup.find('#popup-detail-name').text(event_data.name);
+            popup.find('#popup-detail-time').text(time);
+            return popup.clone(true); // MUST return a new clone, the calendar will change it
+        },
+        event_add_renderer: function() {
+            var popup = $('#popup-add');
+            var button = $('#popup-add button');
             button.click(function() {
-                $('.qtip').hide();
+                $('.SpiffCalendarPopup').hide();
             });
             return popup.clone(true); // MUST return a new clone, the calendar will change it
+        },
+        */
+        on_move_event: function(event_data, target_date) {
+            console.log('Moved:', event_data, target_date);
         }
     });
 });
@@ -69,7 +81,14 @@ $(document).ready(function() {
   </div>
 </div>
 
-<div id="popup" style="display: none" title="Add an event">
+<div id="popup-detail" class="popup" style="display: none">
+    <label for="popup-detail-name">Event: </label>
+    <span id="popup-detail-name"></span>
+    <label for="popup-detail-name">When: </label>
+    <span id="popup-detail-time"></span>
+</div>
+
+<div id="popup-add" class="popup" style="display: none">
     <input type="text" placeholder="Title"/>
     <div id="popup-buttons">
         <button>Close</button>
