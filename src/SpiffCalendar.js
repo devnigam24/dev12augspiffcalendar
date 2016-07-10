@@ -112,6 +112,7 @@ var SpiffCalendar = function(div, options) {
         event_renderer: function(e) { return e; },
         footnote_renderer: function(e) { return e; },
         on_move_event: function() {},
+        on_add_event: function() {},
         event_detail_renderer: function(event_data) {
             var html = $(`
                 <div id="popup-detail" class="default-popup" style="display: none">
@@ -132,13 +133,19 @@ var SpiffCalendar = function(div, options) {
         event_add_renderer: function() {
             var html = $(`
                 <div id="popup-add" class="default-popup" style="display: none">
-                    <input type="text" placeholder="Event"/>
+                    <input id="popup-add-name" type="text" placeholder="Event"/>
                     <div id="popup-buttons">
                         <button>Create</button>
                     </div>
                 </div>`);
             html.find('button').click(function() {
-                $('.qtip').hide();
+                var popup = $(this).closest('.SpiffCalendarPopup');
+                var api = popup.qtip('api');
+                var date = $(api.elements.target).attr('data-date');
+                popup.hide();
+                settings.on_add_event(date, html, function(data) {
+                    that.add_event(date, data);
+                });
             });
             return html;
         },
@@ -212,6 +219,12 @@ var SpiffCalendar = function(div, options) {
         return html;
     };
 
+    this.add_event = function(date, event_data) {
+        date = date.replace(/-0/g, '-');
+        var events = that._div.find('*[data-date="' + date + '"] .events');
+        events.append(that._calendar_event(event_data));
+    };
+
     this._calendar_day = function(date) {
         var html = $(`
             <td class="day">
@@ -222,6 +235,9 @@ var SpiffCalendar = function(div, options) {
                 </div>
             </td>`);
         html.droppable({
+            accept: function(d) {
+                return !d.closest('.day').is(this);
+            },
             drop: function(e, ui) {
                 var event_data = ui.draggable.data('event');
                 ui.draggable.remove();

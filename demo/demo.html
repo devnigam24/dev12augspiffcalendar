@@ -66,6 +66,11 @@ $(document).ready(function() {
             return popup.clone(true); // MUST return a new clone, the calendar will change it
         },
         */
+        on_add_event: function(thedate, container, on_success) {
+            var name = container.find('#popup-add-name').val();
+            console.log('Add:', thedate, name);
+			on_success({name: name, time: undefined});
+        },
         on_move_event: function(event_data, target_date) {
             console.log('Moved:', event_data, target_date);
         }
