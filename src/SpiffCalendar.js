@@ -331,10 +331,14 @@ var SpiffCalendar = function(div, options) {
         thelast.setDate(thelast.getDate() + 6 - thelast.getDay());
 
         // Update the user interface.
-        while(thestart <= thelast) {
-            table.append(this._calendar_week(settings.start, settings.last, thestart));
-            var newDate = thestart.setDate(thestart.getDate() + 6);
-            thestart = new Date(newDate);
+        var current_date = new Date(thestart);
+        while(current_date <= thelast) {
+            var week = this._calendar_week(settings.start,
+                                           settings.last,
+                                           current_date);
+            table.append(week);
+            var newDate = current_date.setDate(current_date.getDate() + 6);
+            current_date = new Date(newDate);
         }
 
         // Trigger event refresh.
