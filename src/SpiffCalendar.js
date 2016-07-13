@@ -389,6 +389,10 @@ var SpiffCalendar = function(div, options) {
                     text: settings.event_add_renderer
                 }
             }));
+            table.find('.day').mousedown(function() {
+                table.find('.day').removeClass('active');
+                $(this).addClass('active');
+            });
         }
     };
 
