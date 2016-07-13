@@ -74,6 +74,10 @@ $(document).ready(function() {
         },
         on_move_event: function(event_data, target_date) {
             console.log('Moved:', event_data, target_date);
+        },
+        on_delete_event: function(container, event_data, on_success) {
+            console.log('Delete:', container, event_data);
+            on_success({});
         }
     });
 });

@@ -111,8 +111,9 @@ var SpiffCalendar = function(div, options) {
         event_api: function() { return {}; },
         event_renderer: function(e) { return e; },
         footnote_renderer: function(e) { return e; },
-        on_move_event: function() {},
         on_add_event: function() {},
+        on_move_event: function() {},
+        on_delete_event: function() {},
         event_detail_renderer: function(event_data) {
             var html = $(`
                 <div id="popup-detail" class="default-popup" style="display: none">
@@ -124,10 +125,20 @@ var SpiffCalendar = function(div, options) {
                         <label for="popup-detail-name">When: </label>
                         <span id="popup-detail-time"></span>
                     </div>
+                    <div id="popup-buttons">
+                        <button>Delete</button>
+                    </div>
                 </div>`);
 			var time = event_data.time ? event_data.time : 'all day';
 			html.find('#popup-detail-name').text(event_data.name);
 			html.find('#popup-detail-time').text(time);
+            html.find('button').click(function() {
+                var popup = $(this).closest('.SpiffCalendarPopup');
+                popup.hide();
+                settings.on_delete_event(html, event_data, function(data) {
+                    that.remove_event(event_data);
+                });
+            });
             return html;
         },
         event_add_renderer: function() {
@@ -223,6 +234,12 @@ var SpiffCalendar = function(div, options) {
         date = date.replace(/-0/g, '-');
         var events = that._div.find('*[data-date="' + date + '"] .events');
         events.append(that._calendar_event(event_data));
+    };
+
+    this.remove_event = function(event_data) {
+        that._div.find('.event').filter(function() {
+            return event_data == $(this).data('event');
+        }).remove();
     };
 
     this._calendar_day = function(date) {
