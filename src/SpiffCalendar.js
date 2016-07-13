@@ -253,7 +253,7 @@ var SpiffCalendar = function(div, options) {
             </td>`);
         html.droppable({
             accept: function(d) {
-                return !d.closest('.day').is(this);
+                return d.closest('.event').length > 0 && !d.closest('.day').is(this);
             },
             drop: function(e, ui) {
                 var event_data = ui.draggable.data('event');
