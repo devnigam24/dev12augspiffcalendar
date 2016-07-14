@@ -553,7 +553,6 @@ var SpiffCalendarEventDialog = function(div, options) {
         that._div.find('#recurring-detail>div').hide();
         var section = that._get_section_from_freq_type(freq_type);
         section.show();
-        that._serialize_to_event_data();
     };
 
     this._init = function() {
