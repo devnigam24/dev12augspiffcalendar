@@ -37,13 +37,14 @@ background-color: #9c9;
 margin: .5em auto;
 }
 
-.SpiffCalendarDialog #recurring-detail input {
+.SpiffCalendarDialog input[type=text],
+.SpiffCalendarDialog input[type=number] {
 border: 1px solid #ddd;
 padding: .1em .3em;
 background-color: #fefefe;
 }
 
-.SpiffCalendarDialog #recurring-detail input[type=number] {
+.SpiffCalendarDialog input[type=number] {
 width: 3.5em;
 }
 
