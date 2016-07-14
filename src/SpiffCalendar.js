@@ -50,6 +50,8 @@ var months = ['January',
               'December'];
 
 function isodate(date) {
+    if (date == null)
+        return undefined;
     if (typeof date === 'string')
         return date.replace(/-0/g, '-');
     var year = date.getFullYear();
