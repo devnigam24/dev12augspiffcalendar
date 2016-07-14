@@ -1,0 +1,63 @@
+.SpiffCalendarDialog {
+border-radius: 0;
+}
+
+.SpiffCalendarDialog .general {
+margin-bottom: .7em;
+}
+
+.SpiffCalendarDialog .general input {
+display: block;
+margin: .3em auto;
+width: 100%;
+}
+
+.SpiffCalendarDialog .radio-bar {
+display: flex;
+border: 1px solid #bbb;
+}
+
+.SpiffCalendarDialog .radio-bar button {
+flex: 1;
+padding: .4em;
+border: none;
+background-color: #beb;
+white-space: nowrap;
+}
+
+.SpiffCalendarDialog .radio-bar button:not(:first-child) {
+border-left: 1px solid #bbb;
+}
+
+.SpiffCalendarDialog .radio-bar button.active {
+background-color: #9c9;
+}
+
+.SpiffCalendarDialog #recurring-period {
+margin: .5em auto;
+}
+
+.SpiffCalendarDialog #recurring-detail input {
+border: 1px solid #ddd;
+padding: .1em .3em;
+background-color: #fefefe;
+}
+
+.SpiffCalendarDialog #recurring-detail input[type=number] {
+width: 3.5em;
+}
+
+.SpiffCalendarDialog #recurring-detail #weekdays {
+display: inline-block;
+vertical-align: top;
+}
+
+.SpiffCalendarDialog #recurring-detail #weekdays label {
+display: block;
+white-space: nowrap;
+}
+
+.SpiffCalendarDialog .recurring-range {
+display: inline;
+margin-top: .5em;
+}

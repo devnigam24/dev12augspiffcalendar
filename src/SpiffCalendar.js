@@ -16,6 +16,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Utilities.
 // ======================================================================
 var periods = ['One Time', 'Daily', 'Weekly', 'Monthly', 'Annually'];
+var period_keys = $.map(periods, function(item, index) {
+    return item.toUpperCase().replace(/ /, '_');
+});
 
 var weekdays = ['Sunday',
                 'Monday',
@@ -57,6 +60,7 @@ var SpiffCalendar = function(div, options) {
         last: undefined,
         event_api: function() { return {}; },
         event_renderer: function(e) { return e; },
+        event_dialog: undefined,
         footnote_renderer: function(e) { return e; },
         on_add_event: function() {},
         on_move_event: function() {},
@@ -93,10 +97,21 @@ var SpiffCalendar = function(div, options) {
                 <div id="popup-add" class="default-popup" style="display: none">
                     <input id="popup-add-name" type="text" placeholder="Event"/>
                     <div id="popup-buttons">
-                        <button>Create</button>
+                        <button id="button-edit">Edit...</button>
+                        <button id="button-create">Create</button>
                     </div>
                 </div>`);
-            html.find('button').click(function() {
+            html.find('#button-edit').click(function() {
+                var popup = $(this).closest('.SpiffCalendarPopup');
+                var api = popup.qtip('api');
+                var data = {
+                    date: $(api.elements.target).attr('data-date'),
+                    name: html.find('#popup-add-name').val()
+                };
+                popup.hide();
+                settings.event_dialog.show(data);
+            });
+            html.find('#button-create').click(function() {
                 var popup = $(this).closest('.SpiffCalendarPopup');
                 var api = popup.qtip('api');
                 var date = $(api.elements.target).attr('data-date');
@@ -253,6 +268,7 @@ var SpiffCalendar = function(div, options) {
                 <input id="current" type="button" value="&bull;"/>
                 <input id="next" type="button" value="&gt;"/>
             </div>
+            <div id="event-dialog" style="display: none"></div>
             <div id="calendar">
                 <table>
                     <tr>
@@ -260,6 +276,10 @@ var SpiffCalendar = function(div, options) {
                 </table>
             </div>`);
         var table = this._div.find('table');
+        if (!settings.event_dialog) {
+            var dialog = this._div.find('#event-dialog');
+            settings.event_dialog = new SpiffCalendarEventDialog(dialog);
+        }
 
         $.each(weekdays_short, function(i, val) {
             table.find("tr").append("<th>" + val + "</th>");
@@ -365,4 +385,207 @@ var SpiffCalendar = function(div, options) {
     };
 
     this._init();
+};
+
+
+// ======================================================================
+// Dialog for editing event details.
+// ======================================================================
+var SpiffCalendarEventDialog = function(div, options) {
+    this._div = div;
+    var that = this;
+    var settings = $.extend(true, {
+        event_data: {},
+        on_save: function(event_data) {},
+    }, options);
+
+    if (this._div.length != 1)
+        throw new Error('selector needs to match exactly one element');
+    this._div.addClass('SpiffCalendarDialog');
+
+    this._recurring_range = function() {
+        var html = $(`
+            <div class="recurring-range">
+              <select>
+                  <option value="forever">forever</option>
+                  <option value="until">until</option>
+                  <option value="times">until counting</option>
+              </select>
+              <span id="recurring-range-until">
+                  <input type="text" class="datepicker"/>
+              </span>
+              <span id="recurring-range-times">
+                  <input type="number" min="1" value="1"/>
+                  <label>times.</label>
+              </span>
+            </div>`);
+        html.find('input.datepicker').datepicker();
+        html.find('select').change(function() {
+            html.find('span').hide();
+            html.find('#recurring-range-' + $(this).val()).show();
+        });
+        html.find('select').change();
+        return html;
+    };
+
+    this._recurring_never = function() {
+        var html = $(`
+            <div class="recurring-never" style="display: none">
+            </div>`);
+        return html;
+    };
+
+    this._recurring_day = function() {
+        var html = $(`
+            <div class="recurring-day" style="display: none">
+              Repeat every <input type="number" min="1" value="1" required/> day(s),
+            </div>`);
+        html.append(that._recurring_range());
+        return html;
+    };
+
+    this._recurring_week = function() {
+        var html = $(`
+            <div class="recurring-week" style="display: none">
+              Repeat every <input type="number" min="1" value="1" required/> week(s) on
+              <div id="weekdays"></div>,
+            </div>`);
+
+        // Day selector.
+        $.each(weekdays, function(i, val) {
+            var day_html = $('<label><input type="checkbox" name="day"/></label>');
+            day_html.val(i+1);
+            day_html.append(val);
+            html.find('#weekdays').append(day_html);
+        });
+
+        html.append(that._recurring_range());
+        return html;
+    };
+
+    this._recurring_month = function() {
+        var html = $(`
+            <div class="recurring-month" style="display: none">
+              Repeat every month, on the
+              <select id="recurring-month-target">
+                    <option value="1">first</option>
+                    <option value="2">second</option>
+                    <option value="3">third</option>
+                    <option value="4">fourth</option>
+                    <option value="-1">last</option>
+              </select>
+              <select id="recurring-month-weekday"></select>,
+            </div>`);
+
+        // Day selector.
+        $.each(weekdays, function(i, val) {
+            var day_html = $('<option/>');
+            day_html.val(i+1);
+            day_html.append(val);
+            html.find('#recurring-month-weekday').append(day_html);
+        });
+
+        html.append(that._recurring_range());
+        return html;
+    };
+
+    this._recurring_year = function() {
+        var html = $(`
+             <div class="recurring-year" style="display: none">
+               Repeat every <input type='number' min='1' value='1' required/> year(s),
+            </div>`);
+        html.append(that._recurring_range());
+        return html;
+    };
+
+    this._period_changed = function() {
+        var input = $(this);
+        that._div.find('#recurring-period button').removeClass('active');
+        input.addClass('active');
+
+        that._div.find('#recurring-detail>div').hide();
+        if (input.val() == period_keys[0])
+            that._div.find('.recurring-never').show();
+        else if (input.val() == period_keys[1])
+            that._div.find('.recurring-day').show();
+        else if (input.val() == period_keys[2])
+            that._div.find('.recurring-week').show();
+        else if (input.val() == period_keys[3])
+            that._div.find('.recurring-month').show();
+        else if (input.val() == period_keys[4])
+            that._div.find('.recurring-year').show();
+    };
+
+    this._init = function() {
+        this._div.append(`
+                <div class="general">
+                    <input id="general-name" type="text" placeholder="Name"/>
+                    <input id="general-date" type="text" placeholder="Date" class="datepicker"/>
+                </div>
+                <div id="recurring-period" class="radio-bar">
+                </div>
+                <div id="recurring-detail">
+                </div>`);
+        that._div.find('input.datepicker').datepicker();
+
+        // Period selector.
+        $.each(period_keys, function(i, key) {
+            var button = $('<button name="period"></button>');
+            button.val(key);
+            button.append(periods[i]);
+            button.click(that._period_changed);
+            that._div.find('#recurring-period').append(button);
+        });
+
+        /*/ Month selector.
+        $.each(months, function(i, val) {
+            var month_html = $('<label><input type="checkbox" name="month"/></label>');
+            month_html.val(i+1);
+            month_html.append(val);
+        });
+    */
+
+        var detail = this._div.find('#recurring-detail');
+        detail.append(this._recurring_never());
+        detail.append(this._recurring_day());
+        detail.append(this._recurring_week());
+        detail.append(this._recurring_month());
+        detail.append(this._recurring_year());
+        detail.find("button:first").click();
+    };
+
+    this._update = function() {
+        this._div.find('#general-name').val(settings.event_data.name);
+        this._div.find("#general-date").val(settings.event_data.date);
+
+        var period_id = period_keys.indexOf(settings.event_data.freq_type);
+        if (period_id == -1)
+            period_id = 0;
+        this._div.find("button")[period_id].click();
+    };
+
+    this.show = function(event_data) {
+        if (event_data)
+            settings.event_data = $.extend(true, {}, event_data);
+        this._div.show();
+        this._update();
+        this._div.dialog({
+            title: 'Event properties',
+            buttons: {
+                Save: function() {
+                    that._div.dialog('close');
+                    return settings.on_save(settings.event_data);
+                },
+            },
+            width: '50em',
+            height: 'auto'
+        });
+    };
+
+    this.hide = function() {
+        this._div.hide();
+    };
+
+    this._init();
+    this._update();
 };
