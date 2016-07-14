@@ -699,6 +699,7 @@ var SpiffCalendarEventDialog = function(div, options) {
             buttons: {
                 Save: function() {
                     that._div.dialog('close');
+                    that._serialize_to_changed_data();
                     console.log('Save', settings.changed_data)
                     return settings.on_save(settings.changed_data);
                 },
