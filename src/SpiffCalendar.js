@@ -49,6 +49,23 @@ var months = ['January',
               'November',
               'December'];
 
+function isodate(date) {
+    if (typeof date === 'string')
+        return date.replace(/-0/g, '-');
+    var year = date.getFullYear();
+    return year + '-' + (date.getMonth()+1) + '-' + date.getDate();
+};
+
+function from_isodate(date) {
+    if (typeof date === 'object')
+        return date;
+    if (date == null)
+        return undefined;
+    var dateTimeParts = date.split("T");
+    var dateParts = dateTimeParts[0].split("-");
+    return new Date(dateParts[0], (dateParts[1] - 1), dateParts[2]);
+};
+
 // ======================================================================
 // Calendar
 // ======================================================================
@@ -105,7 +122,7 @@ var SpiffCalendar = function(div, options) {
                 var popup = $(this).closest('.SpiffCalendarPopup');
                 var api = popup.qtip('api');
                 var data = {
-                    date: $(api.elements.target).attr('data-date'),
+                    date: from_isodate($(api.elements.target).attr('data-date')),
                     name: html.find('#popup-add-name').val()
                 };
                 popup.hide();
@@ -193,7 +210,7 @@ var SpiffCalendar = function(div, options) {
     };
 
     this.add_event = function(date, event_data) {
-        date = date.replace(/-0/g, '-');
+        date = isodate(date);
         var events = that._div.find('*[data-date="' + date + '"] .events');
         events.append(that._calendar_event(event_data));
     };
@@ -396,6 +413,7 @@ var SpiffCalendarEventDialog = function(div, options) {
     var that = this;
     var settings = $.extend(true, {
         event_data: {},
+        changed_data: {},
         on_save: function(event_data) {},
     }, options);
 
@@ -438,7 +456,9 @@ var SpiffCalendarEventDialog = function(div, options) {
     this._recurring_day = function() {
         var html = $(`
             <div class="recurring-day" style="display: none">
-              Repeat every <input type="number" min="1" value="1" required/> day(s),
+              Repeat every
+              <input class="interval" type="number" min="1" value="1" required/>
+              day(s),
             </div>`);
         html.append(that._recurring_range());
         return html;
@@ -447,14 +467,16 @@ var SpiffCalendarEventDialog = function(div, options) {
     this._recurring_week = function() {
         var html = $(`
             <div class="recurring-week" style="display: none">
-              Repeat every <input type="number" min="1" value="1" required/> week(s) on
+              Repeat every
+              <input class="interval" type="number" min="1" value="1" required/>
+              week(s) on
               <div id="weekdays"></div>,
             </div>`);
 
         // Day selector.
         $.each(weekdays, function(i, val) {
             var day_html = $('<label><input type="checkbox" name="day"/></label>');
-            day_html.val(i+1);
+            day_html.find('input').data('value', Math.pow(2, i));
             day_html.append(val);
             html.find('#weekdays').append(day_html);
         });
@@ -466,21 +488,28 @@ var SpiffCalendarEventDialog = function(div, options) {
     this._recurring_month = function() {
         var html = $(`
             <div class="recurring-month" style="display: none">
-              Repeat every month, on the
-              <select id="recurring-month-target">
+              Repeat every
+              <input class="interval" type="number" min="1" value="1" required/>
+              month(s), on the
+              <select id="recurring-month-count">
                     <option value="1">first</option>
                     <option value="2">second</option>
-                    <option value="3">third</option>
-                    <option value="4">fourth</option>
+                    <option value="4">third</option>
+                    <option value="8">fourth</option>
                     <option value="-1">last</option>
+                    <option value="-2">second-last</option>
+                    <option value="-4">third-last</option>
+                    <option value="-8">fourth-last</option>
               </select>
-              <select id="recurring-month-weekday"></select>,
+              <select id="recurring-month-weekday">
+                  <option value="127">Day</option>
+              </select>,
             </div>`);
 
         // Day selector.
         $.each(weekdays, function(i, val) {
             var day_html = $('<option/>');
-            day_html.val(i+1);
+            day_html.val(Math.pow(2, i));
             day_html.append(val);
             html.find('#recurring-month-weekday').append(day_html);
         });
@@ -492,47 +521,64 @@ var SpiffCalendarEventDialog = function(div, options) {
     this._recurring_year = function() {
         var html = $(`
              <div class="recurring-year" style="display: none">
-               Repeat every <input type='number' min='1' value='1' required/> year(s),
+               Repeat every
+               <input class="interval" type='number' min='1' value='1' required/>
+               year(s),
             </div>`);
         html.append(that._recurring_range());
         return html;
+    };
+
+    this._get_section_from_freq_type = function(freq_type) {
+        if (freq_type === 'ONE_TIME')
+            return that._div.find('.recurring-never');
+        else if (freq_type === 'DAILY')
+            return that._div.find('.recurring-day');
+        else if (freq_type === 'WEEKLY')
+            return that._div.find('.recurring-week');
+        else if (freq_type === 'MONTHLY')
+            return that._div.find('.recurring-month');
+        else if (freq_type === 'ANNUALLY')
+            return that._div.find('.recurring-year');
+        console.error('invalid freq_type', freq_type);
     };
 
     this._period_changed = function() {
         var input = $(this);
         that._div.find('#recurring-period button').removeClass('active');
         input.addClass('active');
+        var freq_type = input.val();
+        settings.changed_data.freq_type = freq_type;
+        that._recurring_to_changed_data();
 
         that._div.find('#recurring-detail>div').hide();
-        if (input.val() == period_keys[0])
-            that._div.find('.recurring-never').show();
-        else if (input.val() == period_keys[1])
-            that._div.find('.recurring-day').show();
-        else if (input.val() == period_keys[2])
-            that._div.find('.recurring-week').show();
-        else if (input.val() == period_keys[3])
-            that._div.find('.recurring-month').show();
-        else if (input.val() == period_keys[4])
-            that._div.find('.recurring-year').show();
+        var section = that._get_section_from_freq_type(freq_type);
+        section.show();
     };
 
     this._init = function() {
         this._div.append(`
                 <div class="general">
                     <input id="general-name" type="text" placeholder="Name"/>
-                    <input id="general-date" type="text" placeholder="Date" class="datepicker"/>
+                    <input id="general-date" type="text" placeholder="Date"/>
                 </div>
                 <div id="recurring-period" class="radio-bar">
                 </div>
                 <div id="recurring-detail">
                 </div>`);
-        that._div.find('input.datepicker').datepicker();
+        that._div.find('#general-name').change(function() {
+            settings.changed_data.name = $(this).val();
+        });
+        that._div.find('#general-date').datepicker();
+        that._div.find('#general-date').change(function() {
+            settings.changed_data.date = $(this).datepicker('getDate');
+        });
 
         // Period selector.
-        $.each(period_keys, function(i, key) {
+        $.each(period_keys, function(index, item) {
             var button = $('<button name="period"></button>');
-            button.val(key);
-            button.append(periods[i]);
+            button.val(item);
+            button.append(periods[index]);
             button.click(that._period_changed);
             that._div.find('#recurring-period').append(button);
         });
@@ -552,21 +598,77 @@ var SpiffCalendarEventDialog = function(div, options) {
         detail.append(this._recurring_month());
         detail.append(this._recurring_year());
         detail.find("button:first").click();
+        detail.find('input,select').change(this._recurring_to_changed_data);
+    };
+
+    this._recurring_to_changed_data = function() {
+        var freq_type = settings.changed_data.freq_type;
+        var section = that._get_section_from_freq_type(freq_type);
+        settings.changed_data.freq_interval = section.find('.interval').val();
+        if (freq_type === 'WEEKLY') {
+            var flags = 0;
+            section.find('#weekdays input:checked').each(function() {
+                flags |= $(this).data('value');
+            });
+            settings.changed_data.freq_target = flags;
+        }
+        else if (freq_type === 'MONTHLY')
+            settings.changed_data.freq_target = section.find('#recurring-month-weekday').val();
+        else if (freq_type === 'ANNUALLY')
+            settings.changed_data.freq_target = 0; //section.find('#recurring-year-doy').val(); <- see docs in _update()
+        else
+            settings.changed_data.freq_target = undefined;
+
+        if (freq_type === 'MONTHLY')
+            settings.changed_data.freq_count = section.find('#recurring-month-count').val();
+        else
+            settings.changed_data.freq_count = undefined;
     };
 
     this._update = function() {
+        // Update general event data.
         this._div.find('#general-name').val(settings.event_data.name);
-        this._div.find("#general-date").val(settings.event_data.date);
+        var date = from_isodate(settings.event_data.date);
+        this._div.find("#general-date").datepicker('setDate', date);
 
-        var period_id = period_keys.indexOf(settings.event_data.freq_type);
+        var freq_type = settings.changed_data.freq_type;
+        var period_id = period_keys.indexOf(freq_type);
         if (period_id == -1)
             period_id = 0;
         this._div.find("button")[period_id].click();
+        if (!freq_type)
+            return;
+
+        // Update UI for recurring events.
+        var section = that._get_section_from_freq_type(freq_type);
+
+        // Update interval (=nth day/week/month/year)
+        section.find('.interval').val(settings.event_data.freq_interval);
+
+        // Update target (=weekday, or day of the year)
+        if (freq_type === 'WEEKLY')
+            section.find('#weekdays').val(settings.changed_data.freq_target);
+        else if (freq_type === 'MONTHLY') {
+            section.find('#recurring-month-weekday').val(settings.changed_data.freq_target);
+            // MONTLY is also the only type where freq_count matters. It is a
+            // bitmask specifiying the nth freq_target of the month. E.g.
+            // 1=first target of the month, 2=second, 4=third
+            // -1=last target of the month, -2=second-last, ...
+            // 0=every occurence.
+            section.find('#recurring-month-count').val(settings.changed_data.freq_count);
+        }
+        //We have no UI yet for specifying annual events with a fixed target
+        //day. Hence for annual events, freq_target is always 0, meaning "same
+        //calendar day as the initial event".
+        //else if (freq_type === 'ANNUALLY')
+        //    section.find('#recurring-year-doy').val(settings.changed_data.freq_target);
     };
 
     this.show = function(event_data) {
-        if (event_data)
+        if (event_data) {
             settings.event_data = $.extend(true, {}, event_data);
+            settings.changed_data = $.extend(true, {}, event_data);
+        }
         this._div.show();
         this._update();
         this._div.dialog({
@@ -574,7 +676,8 @@ var SpiffCalendarEventDialog = function(div, options) {
             buttons: {
                 Save: function() {
                     that._div.dialog('close');
-                    return settings.on_save(settings.event_data);
+                    console.log('Save', settings.changed_data)
+                    return settings.on_save(settings.changed_data);
                 },
             },
             width: '50em',
