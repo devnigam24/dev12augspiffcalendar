@@ -173,6 +173,10 @@ var SpiffCalendar = function(div, options) {
         html.data('event', event_data);
         if (event_data.time)
             html.addClass('timed');
+        if (event_data.freq_type !== 'ONE_TIME')
+            html.addClass('recurring');
+        if (event_data.is_exception)
+            html.addClass('exception');
 
         // Add a popup for viewing event details.
         if (settings.event_detail_renderer) {

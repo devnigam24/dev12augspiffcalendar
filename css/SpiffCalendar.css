@@ -124,6 +124,12 @@ padding: 0 .2em;
 text-align: left;
 }
 
+.SpiffCalendar .event.recurring {
+background: url(../icons/recurring.svg) no-repeat 5px center;
+background-size: 11px 11px;
+padding-left: 20px;
+}
+
 .SpiffCalendar .event:not(.timed) {
 background-color: lightgreen;
 }
