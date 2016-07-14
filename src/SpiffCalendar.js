@@ -274,7 +274,7 @@ var SpiffCalendar = function(div, options) {
         return html;
     };
 
-    this._update = function() {
+    this.refresh = function() {
         this._div.empty();
         this._init();
     };
@@ -386,21 +386,21 @@ var SpiffCalendar = function(div, options) {
         settings.start = new Date(settings.start.getFullYear(),
                                   settings.start.getMonth()-1, 1);
         settings.last = undefined;
-        that._update();
+        that.refresh();
     };
 
     this.to_today = function() {
         settings.start = new Date();
         settings.start.setDate(1);
         settings.last = undefined;
-        that._update();
+        that.refresh();
     };
 
     this.to_next_month = function() {
         settings.start = new Date(settings.start.getFullYear(),
                                   settings.start.getMonth()+1, 1);
         settings.last = undefined;
-        that._update();
+        that.refresh();
     };
 
     this._init();
