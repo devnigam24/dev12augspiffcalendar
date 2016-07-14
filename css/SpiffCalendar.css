@@ -78,7 +78,10 @@ opacity: .5;
 
 .SpiffCalendar .day.active {
 box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
-background-color: #fefefe;
+filter: brightness(110%);
+-moz-filter: brightness(110%);
+-khtml-filter: brightness(110%);
+-webkit-filter: brightness(110%);
 }
 
 .SpiffCalendar .day .wrapper {
