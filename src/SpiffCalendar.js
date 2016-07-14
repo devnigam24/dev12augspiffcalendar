@@ -97,9 +97,9 @@ var SpiffCalendar = function(div, options) {
                         <button>Delete</button>
                     </div>
                 </div>`);
-			var time = event_data.time ? event_data.time : 'all day';
-			html.find('#popup-detail-name').text(event_data.name);
-			html.find('#popup-detail-time').text(time);
+            var time = event_data.time ? event_data.time : 'all day';
+            html.find('#popup-detail-name').text(event_data.name);
+            html.find('#popup-detail-time').text(time);
             html.find('button').click(function() {
                 var popup = $(this).closest('.SpiffCalendarPopup');
                 popup.hide();
@@ -654,32 +654,32 @@ var SpiffCalendarEventDialog = function(div, options) {
         if (period_id == -1)
             period_id = 0;
         this._div.find("button")[period_id].click();
-        if (!freq_type)
-            return;
 
         // Update UI for recurring events.
-        var section = that._get_section_from_freq_type(freq_type);
+        if (freq_type) {
+            var section = that._get_section_from_freq_type(freq_type);
 
-        // Update interval (=nth day/week/month/year)
-        section.find('.interval').val(settings.event_data.freq_interval);
+            // Update interval (=nth day/week/month/year)
+            section.find('.interval').val(settings.event_data.freq_interval);
 
-        // Update target (=weekday, or day of the year)
-        if (freq_type === 'WEEKLY')
-            section.find('#weekdays').val(settings.changed_data.freq_target);
-        else if (freq_type === 'MONTHLY') {
-            section.find('#recurring-month-weekday').val(settings.changed_data.freq_target);
-            // MONTLY is also the only type where freq_count matters. It is a
-            // bitmask specifiying the nth freq_target of the month. E.g.
-            // 1=first target of the month, 2=second, 4=third
-            // -1=last target of the month, -2=second-last, ...
-            // 0=every occurence.
-            section.find('#recurring-month-count').val(settings.changed_data.freq_count);
+            // Update target (=weekday, or day of the year)
+            if (freq_type === 'WEEKLY')
+                section.find('#weekdays').val(settings.changed_data.freq_target);
+            else if (freq_type === 'MONTHLY') {
+                section.find('#recurring-month-weekday').val(settings.changed_data.freq_target);
+                // MONTLY is also the only type where freq_count matters. It is a
+                // bitmask specifiying the nth freq_target of the month. E.g.
+                // 1=first target of the month, 2=second, 4=third
+                // -1=last target of the month, -2=second-last, ...
+                // 0=every occurence.
+                section.find('#recurring-month-count').val(settings.changed_data.freq_count);
+            }
+            //We have no UI yet for specifying annual events with a fixed target
+            //day. Hence for annual events, freq_target is always 0, meaning "same
+            //calendar day as the initial event".
+            //else if (freq_type === 'ANNUALLY')
+            //    section.find('#recurring-year-doy').val(settings.changed_data.freq_target);
         }
-        //We have no UI yet for specifying annual events with a fixed target
-        //day. Hence for annual events, freq_target is always 0, meaning "same
-        //calendar day as the initial event".
-        //else if (freq_type === 'ANNUALLY')
-        //    section.find('#recurring-year-doy').val(settings.changed_data.freq_target);
 
         // Lastly, if the user provided settings.render_extra_content, he may
         // also want to populate it with data.
