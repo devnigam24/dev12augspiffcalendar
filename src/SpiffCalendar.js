@@ -560,8 +560,8 @@ var SpiffCalendarEventDialog = function(div, options) {
     this._init = function() {
         this._div.append(`
                 <div class="general">
-                    <input id="general-name" type="text" placeholder="Name"/>
-                    <input id="general-date" type="text" placeholder="Date"/>
+                    <input id="general-name" type="text" placeholder="Name" required/>
+                    <input id="general-date" type="text" placeholder="Date" required/>
                 </div>
                 <div id="extra-content"></div>
                 <div id="recurring-period" class="radio-bar">
