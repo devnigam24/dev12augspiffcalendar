@@ -414,6 +414,9 @@ var SpiffCalendarEventDialog = function(div, options) {
     var settings = $.extend(true, {
         event_data: {},
         changed_data: {},
+        render_extra_content: function() {},
+        serialize_extra_content: function() {},
+        deserialize_extra_content: function() {},
         on_save: function(event_data) {},
     }, options);
 
@@ -548,12 +551,10 @@ var SpiffCalendarEventDialog = function(div, options) {
         that._div.find('#recurring-period button').removeClass('active');
         input.addClass('active');
         var freq_type = input.val();
-        settings.changed_data.freq_type = freq_type;
-        that._recurring_to_changed_data();
-
         that._div.find('#recurring-detail>div').hide();
         var section = that._get_section_from_freq_type(freq_type);
         section.show();
+        that._serialize_to_changed_data();
     };
 
     this._init = function() {
@@ -562,17 +563,16 @@ var SpiffCalendarEventDialog = function(div, options) {
                     <input id="general-name" type="text" placeholder="Name"/>
                     <input id="general-date" type="text" placeholder="Date"/>
                 </div>
+                <div id="extra-content"></div>
                 <div id="recurring-period" class="radio-bar">
                 </div>
                 <div id="recurring-detail">
                 </div>`);
-        that._div.find('#general-name').change(function() {
-            settings.changed_data.name = $(this).val();
-        });
         that._div.find('#general-date').datepicker();
-        that._div.find('#general-date').change(function() {
-            settings.changed_data.date = $(this).datepicker('getDate');
-        });
+
+        // Extra content may be provided by the user.
+        settings.render_extra_content(this._div.find('#extra-content'),
+                                      settings.changed_data);
 
         // Period selector.
         $.each(period_keys, function(index, item) {
@@ -598,13 +598,25 @@ var SpiffCalendarEventDialog = function(div, options) {
         detail.append(this._recurring_month());
         detail.append(this._recurring_year());
         detail.find("button:first").click();
-        detail.find('input,select').change(this._recurring_to_changed_data);
+        detail.find('input,select').change(this._serialize_to_changed_data);
     };
 
-    this._recurring_to_changed_data = function() {
-        var freq_type = settings.changed_data.freq_type;
+    this._serialize_to_changed_data = function() {
+        // Serialize general data first.
+        settings.changed_data.name = that._div.find('#general-name').val();
+        settings.changed_data.date = that._div.find('#general-date').datepicker('getDate');
+
+        // Serialize recurrence data.
+        var selected = that._div.find('#recurring-period button.active');
+        var freq_type = selected.val();
+        settings.changed_data.freq_type = freq_type;
+
+        // Much of the recurrence data depends on the currently selected
+        // freq_type.
         var section = that._get_section_from_freq_type(freq_type);
         settings.changed_data.freq_interval = section.find('.interval').val();
+
+        // Serialize freq_target.
         if (freq_type === 'WEEKLY') {
             var flags = 0;
             section.find('#weekdays input:checked').each(function() {
@@ -619,10 +631,16 @@ var SpiffCalendarEventDialog = function(div, options) {
         else
             settings.changed_data.freq_target = undefined;
 
+        // Serialize freq_count.
         if (freq_type === 'MONTHLY')
             settings.changed_data.freq_count = section.find('#recurring-month-count').val();
         else
             settings.changed_data.freq_count = undefined;
+
+        // Lastly, if the user provided settings.render_extra_content, he may
+        // also want to serialize it.
+        var extra = that._div.find('#extra-content');
+        settings.serialize_extra_content(extra, settings.changed_data);
     };
 
     this._update = function() {
@@ -662,6 +680,11 @@ var SpiffCalendarEventDialog = function(div, options) {
         //calendar day as the initial event".
         //else if (freq_type === 'ANNUALLY')
         //    section.find('#recurring-year-doy').val(settings.changed_data.freq_target);
+
+        // Lastly, if the user provided settings.render_extra_content, he may
+        // also want to populate it with data.
+        var extra = that._div.find('#extra-content');
+        settings.deserialize_extra_content(extra, settings.changed_data);
     };
 
     this.show = function(event_data) {
