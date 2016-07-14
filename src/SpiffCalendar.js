@@ -598,7 +598,6 @@ var SpiffCalendarEventDialog = function(div, options) {
         detail.append(this._recurring_month());
         detail.append(this._recurring_year());
         detail.find("button:first").click();
-        detail.find('input,select').change(this._serialize_to_event_data);
     };
 
     this._serialize_to_event_data = function() {
@@ -636,6 +635,17 @@ var SpiffCalendarEventDialog = function(div, options) {
             settings.event_data.freq_count = section.find('#recurring-month-count').val();
         else
             settings.event_data.freq_count = undefined;
+
+        // Serialize until_count and until_date.
+        var duration = section.find('.recurring-range select').val();
+        var until_date = section.find('#recurring-range-until input').datepicker('getDate');
+        var until_count = section.find('#recurring-range-times input').val();
+        settings.event_data.until_date = undefined;
+        settings.event_data.until_count = undefined;
+        if (duration === 'until')
+            settings.event_data.until_date = until_date;
+        else if (duration === 'times')
+            settings.event_data.until_count = until_count;
 
         // Lastly, if the user provided settings.render_extra_content, he may
         // also want to serialize it.
@@ -679,6 +689,18 @@ var SpiffCalendarEventDialog = function(div, options) {
             //calendar day as the initial event".
             //else if (freq_type === 'ANNUALLY')
             //    section.find('#recurring-year-doy').val(settings.event_data.freq_target);
+
+            // Deserialize until_count and until_date.
+            var input = section.find('#recurring-range-until input');
+            input.datepicker('setDate', settings.event_data.until_date);
+            section.find('#recurring-range-times input').val(settings.event_data.until_count);
+            var select = section.find('.recurring-range select');
+            if (settings.event_data.until_date)
+                select.find('option[value="until"]').prop('selected', true);
+            else if (settings.event_data.until_count)
+                select.find('option[value="times"]').prop('selected', true);
+            else
+                select.find('option[value="forever"]').prop('selected', true);
         }
 
         // Lastly, if the user provided settings.render_extra_content, he may
