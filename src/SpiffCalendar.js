@@ -15,59 +15,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // ======================================================================
 // Utilities.
 // ======================================================================
-// Object.getPrototypeOf is broken in IE :-(. Rough attempt of a workaround:
-if (!Object.getPrototypeOf) {
-    if (typeof this.__proto__ === "object") {
-        Object.getPrototypeOf = function (obj) {
-            return obj.__proto__;
-        };
-    } else {
-        Object.getPrototypeOf = function (obj) {
-            var constructor = obj.constructor,
-            oldConstructor;
-            if (Object.prototype.hasOwnProperty.call(obj, "constructor")) {
-                oldConstructor = constructor;
-                if (!(delete obj.constructor)) // reset constructor
-                    return null; // can't delete obj.constructor, return null
-                constructor = obj.constructor; // get real constructor
-                obj.constructor = oldConstructor; // restore constructor
-            }
-            return constructor ? constructor.prototype : null; // needed for IE
-        };
-    }
-}
-
-// Base class for adding a signal/event mechanism.
-var SpiffCalendarTrackable = function() {
-    this._listeners = {
-    };
-
-    this.trigger = function(event_name, extra_args) {
-        if (!(this._listeners[event_name] instanceof Array))
-            return true;
-        var listeners = this._listeners[event_name];
-        for (var i = 0, len = listeners.length; i < len; i++)
-            if (listeners[i].apply(this, extra_args) === false)
-                return false;
-    };
-
-    this.bind = function(event_name, listener) {
-        if (this._listeners[event_name] instanceof Array)
-            this._listeners[event_name].push(listener);
-        else
-            this._listeners[event_name] = [listener];
-    };
-
-    this.unbind = function(event_name, listener) {
-        if (!(this._listeners[event_name] instanceof Array))
-            return;
-        this._listeners[event_name] = $.grep(this._listeners[event_name],
-                                             function(elem, index) {
-            return elem !== listener;
-        });
-    };
-};
-
 var periods = ['One Time', 'Daily', 'Weekly', 'Monthly', 'Annually'];
 
 var weekdays = ['Sunday',
@@ -419,5 +366,3 @@ var SpiffCalendar = function(div, options) {
 
     this._init();
 };
-
-SpiffCalendar.prototype = new SpiffCalendarTrackable();
