@@ -120,6 +120,10 @@ var SpiffCalendar = function(div, options) {
                         <button id="button-create">Create</button>
                     </div>
                 </div>`);
+            html.find('input').keydown(function(e) {
+                if (e.keyCode === 13)
+                    html.find('#button-create').click();
+            });
             html.find('#button-edit').click(function() {
                 var popup = $(this).closest('.SpiffCalendarPopup');
                 var api = popup.qtip('api');
