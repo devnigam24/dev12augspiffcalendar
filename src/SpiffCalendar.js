@@ -484,7 +484,7 @@ var SpiffCalendarEventDialog = function(div, options) {
         // Day selector.
         $.each(weekdays, function(i, val) {
             var day_html = $('<label><input type="checkbox" name="day"/></label>');
-            day_html.find('input').data('value', Math.pow(2, i));
+            day_html.find('input').data('value', Math.pow(2, (i == 0) ? 6 : (i-1)));
             day_html.append(val);
             html.find('#weekdays').append(day_html);
         });
@@ -517,7 +517,7 @@ var SpiffCalendarEventDialog = function(div, options) {
         // Day selector.
         $.each(weekdays, function(i, val) {
             var day_html = $('<option/>');
-            day_html.val(Math.pow(2, i));
+            day_html.val(Math.pow(2, (i == 0) ? 6 : (i-1)));
             day_html.append(val);
             html.find('#recurring-month-weekday').append(day_html);
         });
