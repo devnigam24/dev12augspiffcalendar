@@ -158,6 +158,13 @@ var SpiffCalendar = function(div, options) {
             fixed: true,
             event: 'unfocus'
         },
+        events: {
+            render: function(event, api) {
+                $(window).bind('keydown', function(e) {
+                    if (e.keyCode === 27) { api.hide(e); }
+                });
+            }
+        },
         position: {
             my: 'bottom center',
             target: 'mouse',
