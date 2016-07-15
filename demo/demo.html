@@ -25,8 +25,8 @@ $(document).ready(function() {
                 {
                     date: '2016-07-09',
                     events: [
-                        {name: 'Test1'},
-                        {time: '10:00', name: 'Test2'}
+                        {freq_type: 'ONE_TIME', name: 'Test1'},
+                        {freq_type: 'ONE_TIME', is_exception: true, time: '10:00', name: 'Test2'}
                     ],
                     footnote: {
                         text: 'day before tomorrow'
@@ -35,7 +35,7 @@ $(document).ready(function() {
                 {
                     date: '2016-07-19',
                     events: [
-                        {name: 'Foo'},
+                        {freq_type: 'WEEKLY', name: 'Foo'},
                         {name: 'Bar'}
                     ]
                 }

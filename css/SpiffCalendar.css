@@ -130,6 +130,12 @@ background-size: 11px 11px;
 padding-left: 20px;
 }
 
+.SpiffCalendar .event.exception {
+background: url(../icons/exception.svg) no-repeat 5px center;
+background-size: 11px 11px;
+padding-left: 20px;
+}
+
 .SpiffCalendar .event:not(.timed) {
 background-color: lightgreen;
 }
