@@ -516,21 +516,26 @@ var SpiffCalendarEventDialog = function(div, options) {
             <div class="recurring-month" style="display: none">
               Repeat every
               <input class="interval" type="number" min="1" value="1" required/>
-              month(s), on the
-              <select id="recurring-month-count">
-                    <option value="1">first</option>
-                    <option value="2">second</option>
-                    <option value="4">third</option>
-                    <option value="8">fourth</option>
-                    <option value="-1">last</option>
-                    <option value="-2">second-last</option>
-                    <option value="-4">third-last</option>
-                    <option value="-8">fourth-last</option>
-              </select>
+              month(s), on
+              <span id="recurring-month-byday">
+              the
+                  <select id="recurring-month-count">
+                        <option value="1">first</option>
+                        <option value="2">second</option>
+                        <option value="4">third</option>
+                        <option value="8">fourth</option>
+                        <option value="-1">last</option>
+                        <option value="-2">second-last</option>
+                        <option value="-4">third-last</option>
+                        <option value="-8">fourth-last</option>
+                  </select>
+              </span>
               <select id="recurring-month-weekday">
-                  <option value="127">day</option>
-              </select>,
+                  <option value="0">day</option>
+              </select>
+              <input id="recurring-month-dom" type="number" min="1" max="31"/>,
             </div>`);
+        html.find('#recurring-month-dom').hide();
 
         // Day selector.
         $.each(weekdays, function(i, val) {
@@ -538,6 +543,17 @@ var SpiffCalendarEventDialog = function(div, options) {
             day_html.val(Math.pow(2, (i == 0) ? 6 : (i-1)));
             day_html.append(val);
             html.find('#recurring-month-weekday').append(day_html);
+        });
+
+        html.find('#recurring-month-weekday').change(function() {
+            if ($(this).val() == 0) {
+                html.find('#recurring-month-byday').hide();
+                html.find('#recurring-month-dom').show();
+            }
+            else {
+                html.find('#recurring-month-dom').hide();
+                html.find('#recurring-month-byday').show();
+            }
         });
 
         html.append(that._recurring_range());
@@ -653,7 +669,9 @@ var SpiffCalendarEventDialog = function(div, options) {
             settings.event_data.freq_target = undefined;
 
         // Serialize freq_count.
-        if (freq_type === 'MONTHLY')
+        if (freq_type === 'MONTHLY' && settings.event_data.freq_target == 0)
+            settings.event_data.freq_count = section.find('#recurring-month-dom').val();
+        else if (freq_type === 'MONTHLY')
             settings.event_data.freq_count = section.find('#recurring-month-count').val();
         else
             settings.event_data.freq_count = undefined;
@@ -687,20 +705,29 @@ var SpiffCalendarEventDialog = function(div, options) {
             period_id = 0;
         this._div.find("button")[period_id].click();
 
-        // Init the target for recurring events (=weekday, or day of the year)
-        if (settings.event_data.freq_target == null) {
+        // Update the weekday for weekly events.
+        var freq_target = settings.event_data.freq_target;
+        if (freq_target == null) {
             var day_num = date.getDay();
-            var freq_target = Math.pow(2, (day_num == 0) ? 6 : (day_num-1));
-            settings.event_data.freq_target = freq_target;
+            freq_target = Math.pow(2, (day_num == 0) ? 6 : (day_num-1));
         }
-
-        // Update the target UI for recurring events.
         var section = that._get_section_from_freq_type('WEEKLY');
         section.find('#weekdays input').each(function() {
             $(this).prop('checked', (freq_target&$(this).data('value')) != 0);
         });
+
+        // Update the day of month for monthly events.
+        var freq_target = settings.event_data.freq_target;
+        if (freq_target == null)
+            freq_target = 0;
         section = that._get_section_from_freq_type('MONTHLY');
-        section.find('#recurring-month-weekday').val(settings.event_data.freq_target);
+        section.find('#recurring-month-weekday').val(freq_target);
+        section.find('#recurring-month-weekday').change();
+        section.find('#recurring-month-dom').val(date.getDate());
+        var num_days = new Date(date.getFullYear(),
+                                date.getMonth() + 1,
+                                0).getDate();
+        section.find('#recurring-month-dom').prop('max', num_days);
 
         if (freq_type) {
             var section = that._get_section_from_freq_type(freq_type);

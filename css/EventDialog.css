@@ -48,6 +48,10 @@ background-color: #fefefe;
 width: 3.5em;
 }
 
+.SpiffCalendarDialog #recurring-month-byday {
+display: inline;
+}
+
 .SpiffCalendarDialog #recurring-detail #weekdays {
 display: inline-block;
 vertical-align: top;
