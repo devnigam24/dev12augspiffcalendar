@@ -429,7 +429,7 @@ var SpiffCalendarEventDialog = function(div, options) {
     this._div = div;
     var that = this;
     var settings = $.extend(true, {
-        event_data: {},
+        event_data: {date: new Date()},
         render_extra_content: function() {},
         serialize_extra_content: function() {},
         deserialize_extra_content: function() {},
@@ -680,25 +680,35 @@ var SpiffCalendarEventDialog = function(div, options) {
             period_id = 0;
         this._div.find("button")[period_id].click();
 
-        // Update UI for recurring events.
+        // Init the target for recurring events (=weekday, or day of the year)
+        if (settings.event_data.freq_target == null) {
+            var day_num = date.getDay();
+            var freq_target = Math.pow(2, (day_num == 0) ? 6 : (day_num-1));
+            settings.event_data.freq_target = freq_target;
+        }
+
+        // Update the target UI for recurring events.
+        var section = that._get_section_from_freq_type('WEEKLY');
+        section.find('#weekdays input').each(function() {
+            $(this).prop('checked', (freq_target&$(this).data('value')) != 0);
+        });
+        section = that._get_section_from_freq_type('MONTHLY');
+        section.find('#recurring-month-weekday').val(settings.event_data.freq_target);
+
         if (freq_type) {
             var section = that._get_section_from_freq_type(freq_type);
 
             // Update interval (=nth day/week/month/year)
             section.find('.interval').val(settings.event_data.freq_interval);
 
-            // Update target (=weekday, or day of the year)
-            if (freq_type === 'WEEKLY')
-                section.find('#weekdays').val(settings.event_data.freq_target);
-            else if (freq_type === 'MONTHLY') {
-                section.find('#recurring-month-weekday').val(settings.event_data.freq_target);
-                // MONTLY is also the only type where freq_count matters. It is a
-                // bitmask specifiying the nth freq_target of the month. E.g.
-                // 1=first target of the month, 2=second, 4=third
-                // -1=last target of the month, -2=second-last, ...
-                // 0=every occurence.
+            // MONTLY is the only type where freq_count matters. It is a
+            // bitmask specifiying the nth freq_target of the month. E.g.
+            // 1=first target of the month, 2=second, 4=third
+            // -1=last target of the month, -2=second-last, ...
+            // 0=every occurence.
+            if (freq_type === 'MONTHLY')
                 section.find('#recurring-month-count').val(settings.event_data.freq_count);
-            }
+
             //We have no UI yet for specifying annual events with a fixed target
             //day. Hence for annual events, freq_target is always 0, meaning "same
             //calendar day as the initial event".
