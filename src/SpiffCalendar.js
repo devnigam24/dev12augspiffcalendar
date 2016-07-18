@@ -395,6 +395,13 @@ var SpiffCalendar = function(div, options) {
                 $(this).addClass('active');
             });
         }
+
+        this._div.children().bind('wheel mousewheel DOMMouseScroll', function (event) {
+		    if (event.originalEvent.wheelDelta > 0 || event.originalEvent.detail < 0)
+			    that.to_next_month();
+		    else
+			    that.to_previous_month();
+	    });
     };
 
     this.to_previous_month = function() {
