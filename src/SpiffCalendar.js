@@ -528,7 +528,7 @@ var SpiffCalendarEventDialog = function(div, options) {
                     <option value="-8">fourth-last</option>
               </select>
               <select id="recurring-month-weekday">
-                  <option value="127">Day</option>
+                  <option value="127">day</option>
               </select>,
             </div>`);
 
