@@ -303,12 +303,10 @@ var SpiffCalendar = function(div, options) {
                 <input id="next" type="button" value="&gt;"/>
             </div>
             <div id="event-dialog" style="display: none"></div>
-            <div id="calendar">
-                <table>
-                    <tr>
-                    </tr>
-                </table>
-            </div>`);
+            <table>
+                <tr>
+                </tr>
+            </table>`);
         var table = this._div.find('table');
         if (!settings.event_dialog) {
             var dialog = this._div.find('#event-dialog');
