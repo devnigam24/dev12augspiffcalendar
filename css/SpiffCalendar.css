@@ -7,9 +7,13 @@ box-sizing: border-box;
 -webkit-user-select: none;
 user-select: none;
 background-color: #e8e8e8;
+height: 100%;
+display: flex;
+flex-direction: column;
 }
 
 .SpiffCalendar #navbar {
+flex: 0 1 auto;
 background: #eee;
 padding: 0 6px;
 display: flex;
@@ -30,7 +34,6 @@ font-family: SimHei;
 font-size: 1.8em;
 background: #eee;
 padding: 0 6px;
-display: flex;
 }
 
 .SpiffCalendar #navbar input:hover {
@@ -38,10 +41,32 @@ background: #fefefe;
 }
 
 .SpiffCalendar table {
+flex: 1;
+display: flex;
 width: 100%;
 table-layout: fixed;
 border-spacing: 8px;
 color: #666;
+}
+
+.SpiffCalendar table tbody {
+display: flex;
+flex-direction: column;
+width: 100%;
+}
+
+.SpiffCalendar table tr {
+display: flex;
+flex: 1;
+width: 100%;
+}
+
+.SpiffCalendar table tr:first-child {
+flex: 0 1 auto;
+}
+
+.SpiffCalendar table tr>* {
+flex: 1;
 }
 
 .SpiffCalendar table th {
@@ -54,7 +79,6 @@ padding: 1em;
 .SpiffCalendar .day {
 vertical-align: top;
 text-align: center;
-height: 9em;
 overflow: hidden;
 border: 1px solid #ddd;
 padding: 0;

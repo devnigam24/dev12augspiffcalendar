@@ -4,6 +4,12 @@ margin: 0;
 padding: 0;
 color: #e8ecf0;
 background: white;
+height: 100%;
+}
+
+body {
+display: flex;
+flex-direction: column;
 }
 
 * {
@@ -13,11 +19,13 @@ box-sizing: border-box;
 }
 
 #wrap {
+flex: 1;
 margin: 0 auto;
 width: 1020px;
 }
 
 #header {
+flex: 0 1 auto;
 padding: .8em 2em;
 margin-bottom: 15px;
 background: #2a5350;
