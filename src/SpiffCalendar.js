@@ -196,8 +196,8 @@ var SpiffCalendar = function(div, options) {
                     text: function() { return settings.event_detail_renderer(event_data); }
                 },
             }));
-            html.click(function() {
-                event.stopPropagation();
+            html.click(function(e) {
+                e.stopPropagation();
             });
         }
 
