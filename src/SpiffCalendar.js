@@ -593,6 +593,29 @@ var SpiffCalendarEventDialog = function(div, options) {
         section.show();
     };
 
+    this._show_error = function(msg) {
+        function hide() { // this just filters the argument away.
+            that._show_error();
+        };
+        that._div.find('*').removeClass('error');
+        that._div.find('*').off('click', hide);
+        that._div.find('#error').hide();
+        if (!msg || $.isPlainObject(msg))
+            return;
+        if (!$.isArray(msg))
+            msg = [{msg: msg}];
+        if (msg.length == 0)
+            return;
+
+        $.each(msg, function(index, error) {
+            if (error.elem)
+                that._div.find(error.elem).addClass('error');
+            that._div.find('#error').append(error.msg + ' ');
+        });
+        that._div.find('#error').show();
+        that._div.find('*').on('click', hide);
+    };
+
     this._init = function() {
         this._div.append(`
                 <div class="general">
@@ -603,7 +626,10 @@ var SpiffCalendarEventDialog = function(div, options) {
                 <div id="recurring-period" class="radio-bar">
                 </div>
                 <div id="recurring-detail">
+                </div>
+                <div id="error">
                 </div>`);
+        that._div.find('#error').hide();
         that._div.find('#general-date').datepicker();
 
         // Extra content may be provided by the user.
@@ -636,20 +662,20 @@ var SpiffCalendarEventDialog = function(div, options) {
         detail.find("button:first").click();
     };
 
-    this._serialize_to_event_data = function() {
+    this._serialize = function(event_data) {
         // Serialize general data first.
-        settings.event_data.name = that._div.find('#general-name').val();
-        settings.event_data.date = that._div.find('#general-date').datepicker('getDate');
+        event_data.name = that._div.find('#general-name').val();
+        event_data.date = that._div.find('#general-date').datepicker('getDate');
 
         // Serialize recurrence data.
         var selected = that._div.find('#recurring-period button.active');
         var freq_type = selected.val();
-        settings.event_data.freq_type = freq_type;
+        event_data.freq_type = freq_type;
 
         // Much of the recurrence data depends on the currently selected
         // freq_type.
         var section = that._get_section_from_freq_type(freq_type);
-        settings.event_data.freq_interval = section.find('.interval').val();
+        event_data.freq_interval = section.find('.interval').val();
 
         // Serialize freq_target.
         if (freq_type === 'WEEKLY') {
@@ -657,38 +683,38 @@ var SpiffCalendarEventDialog = function(div, options) {
             section.find('#weekdays input:checked').each(function() {
                 flags |= $(this).data('value');
             });
-            settings.event_data.freq_target = flags;
+            event_data.freq_target = flags;
         }
         else if (freq_type === 'MONTHLY')
-            settings.event_data.freq_target = section.find('#recurring-month-weekday').val();
+            event_data.freq_target = section.find('#recurring-month-weekday').val();
         else if (freq_type === 'ANNUALLY')
-            settings.event_data.freq_target = 0; //section.find('#recurring-year-doy').val(); <- see docs in _update()
+            event_data.freq_target = 0; //section.find('#recurring-year-doy').val(); <- see docs in _update()
         else
-            settings.event_data.freq_target = undefined;
+            event_data.freq_target = undefined;
 
         // Serialize freq_count.
-        if (freq_type === 'MONTHLY' && settings.event_data.freq_target == 0)
-            settings.event_data.freq_count = section.find('#recurring-month-dom').val();
+        if (freq_type === 'MONTHLY' && event_data.freq_target == 0)
+            event_data.freq_count = section.find('#recurring-month-dom').val();
         else if (freq_type === 'MONTHLY')
-            settings.event_data.freq_count = section.find('#recurring-month-count').val();
+            event_data.freq_count = section.find('#recurring-month-count').val();
         else
-            settings.event_data.freq_count = undefined;
+            event_data.freq_count = undefined;
 
         // Serialize until_count and until_date.
         var duration = section.find('.recurring-range select').val();
         var until_date = section.find('#recurring-range-until input').datepicker('getDate');
         var until_count = section.find('#recurring-range-times input').val();
-        settings.event_data.until_date = undefined;
-        settings.event_data.until_count = undefined;
+        event_data.until_date = undefined;
+        event_data.until_count = undefined;
         if (duration === 'until')
-            settings.event_data.until_date = until_date;
+            event_data.until_date = until_date;
         else if (duration === 'times')
-            settings.event_data.until_count = until_count;
+            event_data.until_count = until_count;
 
         // Lastly, if the user provided settings.render_extra_content, he may
         // also want to serialize it.
         var extra = that._div.find('#extra-content');
-        settings.serialize_extra_content(extra, settings.event_data);
+        settings.serialize_extra_content(extra, event_data);
     };
 
     this._update = function() {
@@ -766,17 +792,37 @@ var SpiffCalendarEventDialog = function(div, options) {
         settings.deserialize_extra_content(extra, settings.event_data);
     };
 
+    this.validate = function() {
+        var errors = [];
+        var data = {};
+        that._serialize(data);
+        if (data.freq_type == 'WEEKLY') {
+            if (data.freq_target == 0)
+                errors.push({
+                    elem: '#weekdays',
+                    msg: 'A weekday must be selected.'
+                });
+        }
+        return errors;
+    };
+
     this.show = function(event_data) {
         if (event_data)
             settings.event_data = $.extend(true, {}, event_data);
+        this._show_error();
         this._div.show();
         this._update();
         this._div.dialog({
             title: 'Event properties',
             buttons: {
                 Save: function() {
+                    var errors = that.validate();
+                    if (errors.length != 0) {
+                        that._show_error(errors);
+                        return;
+                    }
                     that._div.dialog('close');
-                    that._serialize_to_event_data();
+                    that._serialize(settings.event_data);
                     console.log('Save', settings.event_data)
                     return settings.on_save(settings.event_data);
                 },

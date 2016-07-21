@@ -48,6 +48,13 @@ background-color: #fefefe;
 width: 3.5em;
 }
 
+.SpiffCalendarDialog #error {
+background-color: #f66;
+border: 1px solid red;
+padding: .5em;
+margin-top: .5em;
+}
+
 .SpiffCalendarDialog #recurring-month-byday {
 display: inline;
 }
@@ -65,4 +72,8 @@ white-space: nowrap;
 .SpiffCalendarDialog .recurring-range {
 display: inline;
 margin-top: .5em;
+}
+
+.SpiffCalendarDialog .error {
+background-color: #faa;
 }
