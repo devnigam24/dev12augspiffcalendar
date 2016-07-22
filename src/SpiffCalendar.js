@@ -594,11 +594,8 @@ var SpiffCalendarEventDialog = function(div, options) {
     };
 
     this._show_error = function(msg) {
-        function hide() { // this just filters the argument away.
-            that._show_error();
-        };
         that._div.find('*').removeClass('error');
-        that._div.find('*').off('click', hide);
+        that._div.find('#error').text('');
         that._div.find('#error').hide();
         if (!msg || $.isPlainObject(msg))
             return;
@@ -613,7 +610,6 @@ var SpiffCalendarEventDialog = function(div, options) {
             that._div.find('#error').append(error.msg + ' ');
         });
         that._div.find('#error').show();
-        that._div.find('*').on('click', hide);
     };
 
     this._init = function() {
@@ -628,8 +624,12 @@ var SpiffCalendarEventDialog = function(div, options) {
                 <div id="recurring-detail">
                 </div>
                 <div id="error">
+                </div>
+                <div id="buttons">
+                    <button id="buttons-save">Save</button>
                 </div>`);
         that._div.find('#error').hide();
+        that._div.on('click', function() { that._show_error(); });
         that._div.find('#general-date').datepicker();
 
         // Extra content may be provided by the user.
@@ -660,6 +660,18 @@ var SpiffCalendarEventDialog = function(div, options) {
         detail.append(this._recurring_month());
         detail.append(this._recurring_year());
         detail.find("button:first").click();
+
+        that._div.find('#buttons-save').click(function(e) {
+            var errors = that.validate();
+            if (errors.length != 0) {
+                that._show_error(errors);
+                e.stopPropagation();
+                return;
+            }
+            that._div.dialog('close');
+            that._serialize(settings.event_data);
+            return settings.on_save(settings.event_data);
+        });
     };
 
     this._serialize = function(event_data) {
@@ -815,17 +827,6 @@ var SpiffCalendarEventDialog = function(div, options) {
         this._div.dialog({
             title: 'Event properties',
             buttons: {
-                Save: function() {
-                    var errors = that.validate();
-                    if (errors.length != 0) {
-                        that._show_error(errors);
-                        return;
-                    }
-                    that._div.dialog('close');
-                    that._serialize(settings.event_data);
-                    console.log('Save', settings.event_data)
-                    return settings.on_save(settings.event_data);
-                },
             },
             width: '50em',
             height: 'auto'
