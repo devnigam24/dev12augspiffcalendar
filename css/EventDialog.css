@@ -56,6 +56,22 @@ text-align: right;
 padding: .3em 1em;
 }
 
+.SpiffCalendarDialog #buttons-delete {
+float: left;
+border-color: transparent;
+background-color: transparent;
+color: blue;
+}
+
+.SpiffCalendarDialog #buttons-delete:hover {
+cursor: pointer;
+text-decoration: underline;
+}
+
+.SpiffCalendarDialog #buttons-delete:focus {
+outline: 0;
+}
+
 .SpiffCalendarDialog #error {
 background-color: #f66;
 border: 1px solid red;

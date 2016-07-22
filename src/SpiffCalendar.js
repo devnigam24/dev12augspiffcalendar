@@ -439,6 +439,7 @@ var SpiffCalendarEventDialog = function(div, options) {
         serialize_extra_content: function() {},
         deserialize_extra_content: function() {},
         on_save: function(event_data) {},
+        on_delete: function(event_data) {}
     }, options);
 
     if (this._div.length != 1)
@@ -626,6 +627,7 @@ var SpiffCalendarEventDialog = function(div, options) {
                 <div id="error">
                 </div>
                 <div id="buttons">
+                    <button id="buttons-delete">Delete</button>
                     <button id="buttons-save">Save</button>
                 </div>`);
         that._div.find('#error').hide();
@@ -671,6 +673,10 @@ var SpiffCalendarEventDialog = function(div, options) {
             that._div.dialog('close');
             that._serialize(settings.event_data);
             return settings.on_save(settings.event_data);
+        });
+        that._div.find('#buttons-delete').click(function(e) {
+            that._div.dialog('close');
+            return settings.on_delete(settings.event_data);
         });
     };
 
