@@ -15,9 +15,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // ======================================================================
 // Utilities.
 // ======================================================================
-var periods = ['One Time', 'Daily', 'Weekly', 'Monthly', 'Annually'];
-var period_keys = $.map(periods, function(item, index) {
-    return item.toUpperCase().replace(/ /, '_');
+var periods = ['ONE_TIME', 'DAILY', 'WEEKLY', 'MONTHLY', 'ANNUALLY'];
+var period_names = $.map(periods, function(item, index) {
+    return item.toLowerCase()
+          .split('_')
+          .map(i => i[0].toUpperCase() + i.substring(1))
+          .join(' ')
 });
 
 var weekdays = ['Sunday',
@@ -639,10 +642,10 @@ var SpiffCalendarEventDialog = function(div, options) {
                                       settings.event_data);
 
         // Period selector.
-        $.each(period_keys, function(index, item) {
+        $.each(periods, function(index, item) {
             var button = $('<button name="period"></button>');
             button.val(item);
-            button.append(periods[index]);
+            button.append(period_names[index]);
             button.click(that._period_changed);
             that._div.find('#recurring-period').append(button);
         });
@@ -742,7 +745,7 @@ var SpiffCalendarEventDialog = function(div, options) {
         this._div.find("#general-date").datepicker('setDate', date);
 
         var freq_type = settings.event_data.freq_type;
-        var period_id = period_keys.indexOf(freq_type);
+        var period_id = periods.indexOf(freq_type);
         if (period_id == -1)
             period_id = 0;
         this._div.find("button")[period_id].click();
