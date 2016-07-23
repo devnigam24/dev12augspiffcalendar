@@ -293,8 +293,8 @@ var SpiffCalendar = function(div, options) {
     };
 
     this.refresh = function() {
-        this._div.empty();
-        this._init();
+        that._div.empty();
+        that._init();
     };
 
     this._init = function() {
