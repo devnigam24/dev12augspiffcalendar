@@ -405,6 +405,10 @@ var SpiffCalendar = function(div, options) {
 	    });
     };
 
+    this.get_active_date = function() {
+        return that._div.find('.day.active').data('date');
+    };
+
     this.to_previous_month = function() {
         settings.start = new Date(settings.start.getFullYear(),
                                   settings.start.getMonth()-1, 1);
