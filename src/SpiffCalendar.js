@@ -701,7 +701,7 @@ var SpiffCalendarEventDialog = function(options) {
     };
 
     this._init = function() {
-        this._div.append(`
+        that._div.append(`
                 <div class="general">
                     <input id="general-name" type="text" placeholder="Name" required/>
                     <input id="general-date" type="text" placeholder="Date" required/>
@@ -722,7 +722,7 @@ var SpiffCalendarEventDialog = function(options) {
         that._div.find('#general-date').datepicker();
 
         // Extra content may be provided by the user.
-        settings.render_extra_content(this._div.find('#extra-content'),
+        settings.render_extra_content(that._div.find('#extra-content'),
                                       settings.event_data);
 
         // Period selector.
@@ -742,12 +742,12 @@ var SpiffCalendarEventDialog = function(options) {
         });
     */
 
-        var detail = this._div.find('#recurring-detail');
-        detail.append(this._recurring_never());
-        detail.append(this._recurring_day());
-        detail.append(this._recurring_week());
-        detail.append(this._recurring_month());
-        detail.append(this._recurring_year());
+        var detail = that._div.find('#recurring-detail');
+        detail.append(that._recurring_never());
+        detail.append(that._recurring_day());
+        detail.append(that._recurring_week());
+        detail.append(that._recurring_month());
+        detail.append(that._recurring_year());
         detail.find("button:first").click();
 
         that._div.find('#buttons-save').click(function(e) {
