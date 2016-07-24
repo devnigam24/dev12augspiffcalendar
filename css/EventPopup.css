@@ -55,3 +55,15 @@ margin-left: .5em;
 padding: .4em;
 border: 1px solid #ccc;
 }
+
+.SpiffCalendarPopup #button-delete {
+float: left;
+border-color: transparent;
+background-color: transparent;
+color: blue;
+}
+
+.SpiffCalendarPopup #button-delete:hover {
+cursor: pointer;
+text-decoration: underline;
+}
