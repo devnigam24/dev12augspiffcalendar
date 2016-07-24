@@ -800,7 +800,7 @@ var SpiffCalendarEventDialog = function(div, options) {
 
             // Deserialize until_count and until_date.
             var input = section.find('#recurring-range-until input');
-            input.datepicker('setDate', settings.event_data.until_date);
+            input.datepicker('setDate', from_isodate(settings.event_data.until_date));
             section.find('#recurring-range-times input').val(settings.event_data.until_count);
             var select = section.find('.recurring-range select');
             if (settings.event_data.until_date)
@@ -809,6 +809,7 @@ var SpiffCalendarEventDialog = function(div, options) {
                 select.find('option[value="times"]').prop('selected', true);
             else
                 select.find('option[value="forever"]').prop('selected', true);
+            select.change();
         }
 
         // Lastly, if the user provided settings.render_extra_content, he may
