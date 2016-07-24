@@ -449,7 +449,9 @@ var SpiffCalendarPopup = function(options) {
         that._div.find('input').data('validator', validator_required);
 
         // Extra content may be provided by the user.
-        settings.render_extra_content(that._div.find('#extra-content'), event_data);
+        settings.render_extra_content(that._div.find('#extra-content'),
+                                      event_data,
+                                      is_new_event);
 
         // Connect event handlers for input validation.
         var save_btn = this._div.find('#button-save');
