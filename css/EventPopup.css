@@ -1,0 +1,57 @@
+.SpiffCalendarPopup.qtip {
+border: 1px solid #bbb;
+padding: 1em;
+z-index: 20;
+box-shadow: 0 4px 15px 0 rgba(0, 0, 0, .3);
+}
+
+.SpiffCalendarPopup .qtip-content {
+padding: 0;
+}
+
+.SpiffCalendarPopup.qtip,
+.SpiffCalendarPopup .qtip-content {
+max-width: none;
+max-height: none;
+}
+
+.SpiffCalendarPopup {
+margin: 0;
+padding: 0;
+width: 30em;
+}
+
+.SpiffCalendarPopup input {
+display: block;
+width: 100%;
+margin: 0 auto .5em auto;
+padding: .4em;
+border: 1px solid #ddd;
+}
+
+.SpiffCalendarPopup input.error {
+background-color: #f66;
+border: 1px solid red;
+color: black;
+}
+
+.SpiffCalendarPopup label {
+width: 15em;
+font-weight: bold;
+}
+
+.SpiffCalendarPopup #popup-detail div {
+font-size: 1.4em;
+line-height: 1.2em;
+}
+
+.SpiffCalendarPopup #popup-buttons {
+text-align: right;
+margin-top: 1em;
+}
+
+.SpiffCalendarPopup button {
+margin-left: .5em;
+padding: .4em;
+border: 1px solid #ccc;
+}
