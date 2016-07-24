@@ -67,3 +67,7 @@ color: blue;
 cursor: pointer;
 text-decoration: underline;
 }
+
+.SpiffCalendarPopup #button-delete:focus {
+outline: 0;
+}

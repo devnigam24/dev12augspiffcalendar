@@ -718,8 +718,8 @@ var SpiffCalendarEventDialog = function(options) {
                 <div id="error">
                 </div>
                 <div id="buttons">
-                    <button id="buttons-delete">Delete</button>
-                    <button id="buttons-save">Save</button>
+                    <button id="button-delete">Delete</button>
+                    <button id="button-save">Save</button>
                 </div>`);
         that._div.find('#error').hide();
         that._div.on('click', function() { that._show_error(); });
@@ -754,7 +754,7 @@ var SpiffCalendarEventDialog = function(options) {
         detail.append(that._recurring_year());
         detail.find("button:first").click();
 
-        that._div.find('#buttons-save').click(function(e) {
+        that._div.find('#button-save').click(function(e) {
             var errors = that.validate();
             if (errors.length != 0) {
                 that._show_error(errors);
@@ -765,7 +765,7 @@ var SpiffCalendarEventDialog = function(options) {
             that._serialize(settings.event_data);
             return settings.on_save(settings.event_data);
         });
-        that._div.find('#buttons-delete').click(function(e) {
+        that._div.find('#button-delete').click(function(e) {
             that._div.dialog('close');
             return settings.on_delete(settings.event_data);
         });
@@ -828,9 +828,9 @@ var SpiffCalendarEventDialog = function(options) {
 
     this._update = function() {
         if (settings.event_data.name)
-            that._div.find('#buttons-delete').show();
+            that._div.find('#button-delete').show();
         else
-            that._div.find('#buttons-delete').hide();
+            that._div.find('#button-delete').hide();
 
         // Update general event data.
         this._div.find('#general-name').val(settings.event_data.name);
