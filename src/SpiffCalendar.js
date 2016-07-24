@@ -412,13 +412,13 @@ var SpiffCalendarPopup = function(options) {
             if (!validate_all(popup._div.find('input')))
                 return false;
         },
-        on_save: function(popup, date) {},
+        on_save: function(popup, data) {},
         on_edit_before: function(popup) {},
-        on_edit: function(popup, date) {
+        on_edit: function(popup, data) {
             settings.event_dialog.show();
         },
         on_delete_before: function(event_data) {},
-        on_delete: function(popup, date) {},
+        on_delete: function(popup, data) {},
     }, options);
 
     this.update = function(event_data, is_new_event) {
@@ -444,7 +444,7 @@ var SpiffCalendarPopup = function(options) {
         }
 
         // Extra content may be provided by the user.
-        settings.render_extra_content(this, this._div.find('#extra-content'));
+        settings.render_extra_content(that._div.find('#extra-content'), event_data);
 
         // Define input validators for pre-defined fields.
         that._div.find('input').data('validator', validator_required);
