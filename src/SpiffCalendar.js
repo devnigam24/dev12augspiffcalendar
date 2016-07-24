@@ -75,7 +75,7 @@ function validator_required(input) {
     return $.trim(input.val()) !== '';
 };
 
-function get_invalid_inputs(selector) {
+function get_invalid_fields(selector) {
     return selector.filter(function() {
         var validator = $(this).data('validator');
         if (!validator)
@@ -84,8 +84,16 @@ function get_invalid_inputs(selector) {
     });
 };
 
+function get_invalid_field_targets(selector) {
+    var invalid = get_invalid_fields(selector);
+    return invalid.map(function(index, elem) {
+        var target = $(elem).data('validator-target');
+        return target ? target.get() : this;
+    });
+};
+
 function validate_all(selector) {
-    var invalid = get_invalid_inputs(selector);
+    var invalid = get_invalid_fields(selector);
     invalid.addClass('error');
     return invalid.length == 0;
 };
@@ -467,7 +475,7 @@ var SpiffCalendarPopup = function(options) {
         });
         that._div.find('input').bind('keyup change select', function(e) {
             var nothidden = that._div.find("input:not([style$='display: none;'])");
-            var invalid = get_invalid_inputs(nothidden);
+            var invalid = get_invalid_fields(nothidden);
             save_btn.prop("disabled", invalid.length != 0);
         });
 
@@ -603,6 +611,7 @@ var SpiffCalendarEventDialog = function(options) {
             day_html.append(val);
             html.find('#weekdays').append(day_html);
         });
+        html.find('input').data('validator-target', html.find('#weekdays'));
         html.find('input').data('validator', function() {
             return html.find('input:checked').length > 0;
         });
@@ -697,25 +706,6 @@ var SpiffCalendarEventDialog = function(options) {
         section.show();
     };
 
-    this._show_error = function(msg) {
-        that._div.find('*').removeClass('error');
-        that._div.find('#error').text('');
-        that._div.find('#error').hide();
-        if (!msg || $.isPlainObject(msg))
-            return;
-        if (!$.isArray(msg))
-            msg = [{msg: msg}];
-        if (msg.length == 0)
-            return;
-
-        $.each(msg, function(index, error) {
-            if (error.elem)
-                that._div.find(error.elem).addClass('error');
-            that._div.find('#error').append(error.msg + ' ');
-        });
-        that._div.find('#error').show();
-    };
-
     this._init = function() {
         that._div.append(`
                 <div class="general">
@@ -727,14 +717,11 @@ var SpiffCalendarEventDialog = function(options) {
                 </div>
                 <div id="recurring-detail">
                 </div>
-                <div id="error">
-                </div>
                 <div id="buttons">
                     <button id="button-delete">Delete</button>
                     <button id="button-save">Save</button>
                 </div>`);
         that._div.find('#error').hide();
-        that._div.on('click', function() { that._show_error(); });
         that._div.find('#general-name').data('validator', validator_required);
         that._div.find('#general-date').datepicker();
         that._div.find('#general-date').data('validator', validator_required);
@@ -771,9 +758,15 @@ var SpiffCalendarEventDialog = function(options) {
             if (e.keyCode === 13)
                 save_btn.click();
         });
+        that._div.find('input').change(function(e) {
+            if ($(this).data('validator-target'))
+                $(this).data('validator-target').removeClass('error');
+            else
+                $(this).removeClass('error');
+        });
         that._div.find('input,select,button').bind('keyup change select click', function(e) {
             var nothidden = that._div.find("input:visible");
-            var invalid = get_invalid_inputs(nothidden);
+            var invalid = get_invalid_fields(nothidden);
             save_btn.prop("disabled", invalid.length != 0);
         });
 
@@ -782,9 +775,10 @@ var SpiffCalendarEventDialog = function(options) {
                                       settings.event_data);
 
         that._div.find('#button-save').click(function(e) {
-            var errors = that.validate();
-            if (errors.length != 0) {
-                that._show_error(errors);
+            var nothidden = that._div.find("input:visible");
+            var invalid = get_invalid_field_targets(nothidden);
+            if (invalid.length != 0) {
+                invalid.addClass('error');
                 e.stopPropagation();
                 return;
             }
@@ -934,24 +928,9 @@ var SpiffCalendarEventDialog = function(options) {
         settings.deserialize_extra_content(extra, settings.event_data);
     };
 
-    this.validate = function() {
-        var errors = [];
-        var data = {};
-        that._serialize(data);
-        if (data.freq_type == 'WEEKLY') {
-            if (data.freq_target == 0)
-                errors.push({
-                    elem: '#weekdays',
-                    msg: 'A weekday must be selected.'
-                });
-        }
-        return errors;
-    };
-
     this.show = function(event_data) {
         if (event_data)
             settings.event_data = $.extend(true, {}, event_data);
-        this._show_error();
         this._div.show();
         this._update();
         this._div.dialog({

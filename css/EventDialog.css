@@ -99,5 +99,5 @@ margin-top: .5em;
 }
 
 .SpiffCalendarDialog .error {
-background-color: #faa;
+background-color: #faa !important;
 }
