@@ -825,6 +825,11 @@ var SpiffCalendarEventDialog = function(options) {
     };
 
     this._update = function() {
+        if (settings.event_data.name)
+            that._div.find('#buttons-delete').show();
+        else
+            that._div.find('#buttons-delete').hide();
+
         // Update general event data.
         this._div.find('#general-name').val(settings.event_data.name);
         var date = from_isodate(settings.event_data.date);
