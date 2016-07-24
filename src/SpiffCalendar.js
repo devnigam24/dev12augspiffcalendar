@@ -417,7 +417,7 @@ var SpiffCalendarPopup = function(options) {
         on_save: function(popup, data) {},
         on_edit_before: function(popup) {},
         on_edit: function(popup, data) {
-            settings.event_dialog.show();
+            settings.event_dialog.show(data);
         },
         on_delete_before: function(event_data) {},
         on_delete: function(popup, data) {},
