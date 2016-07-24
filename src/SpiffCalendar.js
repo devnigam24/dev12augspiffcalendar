@@ -78,6 +78,8 @@ function validator_required(input) {
 function get_invalid_inputs(selector) {
     return selector.filter(function() {
         var validator = $(this).data('validator');
+        if (!validator)
+            return false;
         return !validator($(this));
     });
 };
@@ -443,11 +445,11 @@ var SpiffCalendarPopup = function(options) {
             that._div.find('#button-delete').hide();
         }
 
-        // Extra content may be provided by the user.
-        settings.render_extra_content(that._div.find('#extra-content'), event_data);
-
         // Define input validators for pre-defined fields.
         that._div.find('input').data('validator', validator_required);
+
+        // Extra content may be provided by the user.
+        settings.render_extra_content(that._div.find('#extra-content'), event_data);
 
         // Connect event handlers for input validation.
         var save_btn = this._div.find('#button-save');
