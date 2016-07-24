@@ -438,7 +438,10 @@ var SpiffCalendarPopup = function(options) {
                     </div>
                 </div>`);
         that._div.find('.general-date').datepicker({
-            onSelect: function() { this.blur(); }
+            onSelect: function() {
+                this.blur();
+                $(this).change();
+            }
         });
 
         // If no event_data was passed, assume we are adding a new event.
@@ -462,7 +465,7 @@ var SpiffCalendarPopup = function(options) {
             if (e.keyCode === 13)
                 save_btn.click();
         });
-        that._div.find('input').keyup(function(e) {
+        that._div.find('input').bind('keyup change select', function(e) {
             var nothidden = that._div.find("input:not([style$='display: none;'])");
             var invalid = get_invalid_inputs(nothidden);
             save_btn.prop("disabled", invalid.length != 0);
