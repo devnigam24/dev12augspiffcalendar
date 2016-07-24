@@ -470,21 +470,21 @@ var SpiffCalendarPopup = function(options) {
         save_btn.click(function() {
             if (settings.on_save_before(that) == false)
                 return;
-            that._serialize(event_data);
+            that._serialize(event_data, true);
             settings.on_save(that, event_data);
             that._div.closest('.qtip').hide();
         });
         that._div.find('#button-edit').click(function() {
             if (settings.on_edit_before(that) == false)
                 return;
-            that._serialize(event_data);
+            that._serialize(event_data, false);
             settings.on_edit(that, event_data);
             that._div.closest('.qtip').hide();
         });
         that._div.find('#button-delete').click(function() {
             if (settings.on_save_before(that) == false)
                 return;
-            that._serialize(event_data);
+            that._serialize(event_data, false);
             settings.on_delete(that, event_data);
             that._div.closest('.qtip').hide();
         });
@@ -503,11 +503,12 @@ var SpiffCalendarPopup = function(options) {
         that._div.find('input').keyup();
     };
 
-    this._serialize = function(event_data) {
-        if (!event_data) {
-            var date = that._div.find('.general-date').datepicker('getDate');
-            event_data = {date: date};
-        }
+    this._serialize = function(event_data, include_date) {
+        var date = that._div.find('.general-date').datepicker('getDate');
+        if (!event_data)
+            event_data = {};
+        if (include_date == true)
+            event_data.date = date;
         event_data.name = that._div.find('.general-name').val();
 
         // If the user provided settings.render_extra_content, he may
