@@ -71,6 +71,23 @@ function from_isodate(date) {
     return new Date(dateParts[0], (dateParts[1] - 1), dateParts[2]);
 };
 
+function validator_required(input) {
+    return $.trim(input.val()) !== '';
+};
+
+function get_invalid_inputs(selector) {
+    return selector.filter(function() {
+        var validator = $(this).data('validator');
+        return !validator($(this));
+    });
+};
+
+function validate_all(selector) {
+    var invalid = get_invalid_inputs(selector);
+    invalid.addClass('error');
+    return invalid.length == 0;
+};
+
 // ======================================================================
 // Calendar
 // ======================================================================
@@ -82,72 +99,9 @@ var SpiffCalendar = function(div, options) {
         last: undefined,
         event_api: function() { return {}; },
         event_renderer: function(e) { return e; },
-        event_dialog: undefined,
+        event_popup: undefined,
         footnote_renderer: function(e) { return e; },
-        on_add_event: function() {},
-        on_move_event: function() {},
-        on_delete_event: function() {},
-        event_detail_renderer: function(event_data) {
-            var html = $(`
-                <div id="popup-detail" class="default-popup" style="display: none">
-                    <div>
-                        <label for="popup-detail-name">Event: </label>
-                        <span id="popup-detail-name"></span>
-                    </div>
-                    <div>
-                        <label for="popup-detail-name">When: </label>
-                        <span id="popup-detail-time"></span>
-                    </div>
-                    <div id="popup-buttons">
-                        <button>Delete</button>
-                    </div>
-                </div>`);
-            var time = event_data.time ? event_data.time : 'all day';
-            html.find('#popup-detail-name').text(event_data.name);
-            html.find('#popup-detail-time').text(time);
-            html.find('button').click(function() {
-                var popup = $(this).closest('.SpiffCalendarPopup');
-                popup.hide();
-                settings.on_delete_event(html, event_data, function(data) {
-                    that.remove_event(event_data);
-                });
-            });
-            return html;
-        },
-        event_add_renderer: function() {
-            var html = $(`
-                <div id="popup-add" class="default-popup" style="display: none">
-                    <input id="popup-add-name" type="text" placeholder="Event"/>
-                    <div id="popup-buttons">
-                        <button id="button-edit">Edit...</button>
-                        <button id="button-create">Create</button>
-                    </div>
-                </div>`);
-            html.find('input').keydown(function(e) {
-                if (e.keyCode === 13)
-                    html.find('#button-create').click();
-            });
-            html.find('#button-edit').click(function() {
-                var popup = $(this).closest('.SpiffCalendarPopup');
-                var api = popup.qtip('api');
-                var data = {
-                    date: from_isodate($(api.elements.target).attr('data-date')),
-                    name: html.find('#popup-add-name').val()
-                };
-                popup.hide();
-                settings.event_dialog.show(data);
-            });
-            html.find('#button-create').click(function() {
-                var popup = $(this).closest('.SpiffCalendarPopup');
-                var api = popup.qtip('api');
-                var date = $(api.elements.target).attr('data-date');
-                popup.hide();
-                settings.on_add_event(date, html, function(data) {
-                    that.add_event(date, data);
-                });
-            });
-            return html;
-        },
+        on_move_event: function() {}
     }, options);
     var qtip_settings = {
         style: {
@@ -166,6 +120,14 @@ var SpiffCalendar = function(div, options) {
                 $(window).bind('keydown', function(e) {
                     if (e.keyCode === 27) { api.hide(e); }
                 });
+            },
+            hide: function(event, api) {
+                if (!event.originalEvent)
+                    return;
+                var target = $(event.originalEvent.target);
+                if (target.closest('.ui-datepicker').length == 1
+                        || target.closest('.SpiffCalendarPopup').length == 1)
+                    event.preventDefault();
             }
         },
         position: {
@@ -182,7 +144,7 @@ var SpiffCalendar = function(div, options) {
         throw new Error('selector needs to match exactly one element');
     this._div.addClass('SpiffCalendar');
 
-    this._calendar_event = function(event_data) {
+    this._calendar_event = function(event_data, date) {
         var html = $(`<div class="event"></div>`);
         html.data('event', event_data);
         if (event_data.time)
@@ -193,10 +155,14 @@ var SpiffCalendar = function(div, options) {
             html.addClass('exception');
 
         // Add a popup for viewing event details.
-        if (settings.event_detail_renderer) {
+        if (settings.event_popup) {
             html.qtip($.extend(true, qtip_settings, {
                 content: {
-                    text: function() { return settings.event_detail_renderer(event_data); }
+                    text: function(event, api) {
+                        data = $.extend(true, event_data, {date: date});
+                        settings.event_popup.update(data);
+                        return settings.event_popup._div;
+                    }
                 },
             }));
             html.click(function(e) {
@@ -232,7 +198,7 @@ var SpiffCalendar = function(div, options) {
     this.add_event = function(date, event_data) {
         date = isodate(date);
         var events = that._div.find('*[data-date="' + date + '"] .events');
-        events.append(that._calendar_event(event_data));
+        events.append(that._calendar_event(event_data, date));
     };
 
     this.remove_event = function(event_data) {
@@ -258,7 +224,7 @@ var SpiffCalendar = function(div, options) {
                 var event_data = ui.draggable.data('event');
                 ui.draggable.remove();
                 settings.on_move_event(event_data, $(this).data('date'));
-                $(this).find('.events').append(that._calendar_event(event_data));
+                $(this).find('.events').append(that._calendar_event(event_data, date));
             }
         });
 
@@ -305,17 +271,11 @@ var SpiffCalendar = function(div, options) {
                 <input id="current" type="button" value="&bull;"/>
                 <input id="next" type="button" value="&gt;"/>
             </div>
-            <div id="event-dialog" style="display: none"></div>
             <table>
                 <tr>
                 </tr>
             </table>`);
         var table = this._div.find('table');
-        if (!settings.event_dialog) {
-            var dialog = this._div.find('#event-dialog');
-            settings.event_dialog = new SpiffCalendarEventDialog(dialog);
-        }
-
         $.each(weekdays_short, function(i, val) {
             table.find("tr").append("<th>" + val + "</th>");
         });
@@ -368,7 +328,7 @@ var SpiffCalendar = function(div, options) {
                 var events = day_div.find('.events');
                 events.empty();
                 $.each(day_data.events, function(index, ev) {
-                    events.append(that._calendar_event(ev));
+                    events.append(that._calendar_event(ev, date));
                 });
                 var footnote = settings.footnote_renderer(day_data.footnote);
                 day_div.find(".footnote").append(footnote);
@@ -380,7 +340,7 @@ var SpiffCalendar = function(div, options) {
         this._div.find("#current").click(this.to_today);
         this._div.find("#next").click(this.to_next_month);
 
-        if (settings.event_add_renderer) {
+        if (settings.event_popup) {
             table.find(".day").qtip($.extend(true, qtip_settings, {
                 events: {
                     visible: function() {
@@ -388,7 +348,11 @@ var SpiffCalendar = function(div, options) {
                     }
                 },
                 content: {
-                    text: settings.event_add_renderer
+                    text: function(event, api) {
+                        var date = from_isodate($(api.elements.target).attr('data-date'));
+                        settings.event_popup.update({date: date}, true);
+                        return settings.event_popup._div;
+                    }
                 }
             }));
             table.find('.day').mousedown(function() {
@@ -398,11 +362,11 @@ var SpiffCalendar = function(div, options) {
         }
 
         this._div.children().bind('wheel mousewheel DOMMouseScroll', function (event) {
-		    if (event.originalEvent.wheelDelta > 0 || event.originalEvent.detail < 0)
-			    that.to_next_month();
-		    else
-			    that.to_previous_month();
-	    });
+            if (event.originalEvent.wheelDelta > 0 || event.originalEvent.detail < 0)
+                that.to_next_month();
+            else
+                that.to_previous_month();
+        });
     };
 
     this.get_active_date = function() {
@@ -433,12 +397,128 @@ var SpiffCalendar = function(div, options) {
     this._init();
 };
 
+// ======================================================================
+// Popup for adding a new event / editing a single event of a series.
+// ======================================================================
+var SpiffCalendarPopup = function(options) {
+    this._div = undefined;
+    var that = this;
+    var settings = $.extend(true, {
+        event_dialog: undefined,
+        render_extra_content: function() {},
+        serialize_extra_content: function() {},
+        deserialize_extra_content: function() {},
+        on_save_before: function(popup) {
+            if (!validate_all(popup._div.find('input')))
+                return false;
+        },
+        on_save: function(popup, date) {},
+        on_edit_before: function(popup) {},
+        on_edit: function(popup, date) {
+            settings.event_dialog.show();
+        },
+        on_delete_before: function(event_data) {},
+        on_delete: function(popup, date) {},
+    }, options);
+
+    this.update = function(event_data, is_new_event) {
+        that._div = $(`
+                <div id="content" style="display: none">
+                    <div class="general">
+                        <input class="general-name" type="text" placeholder="Event"/>
+                        <input class="general-date" type="text" placeholder="Date"/>
+                    </div>
+                    <div id="extra-content"></div>
+                    <div id="popup-buttons">
+                        <button id="button-delete">Delete</button>
+                        <button id="button-edit">Edit Series...</button>
+                        <button id="button-save">Save</button>
+                    </div>
+                </div>`);
+        that._div.find('.general-date').datepicker();
+
+        // If no event_data was passed, assume we are adding a new event.
+        if (is_new_event == true) {
+            that._div.find('.general-date').hide();
+            that._div.find('#button-delete').hide();
+        }
+
+        // Extra content may be provided by the user.
+        settings.render_extra_content(this, this._div.find('#extra-content'));
+
+        // Define input validators for pre-defined fields.
+        that._div.find('input').data('validator', validator_required);
+
+        // Connect event handlers for input validation.
+        var save_btn = this._div.find('#button-save');
+        that._div.find('input').keydown(function(e) {
+            $(this).removeClass('error');
+            if (e.keyCode === 13)
+                save_btn.click();
+        });
+        that._div.find('input').keyup(function(e) {
+            var nothidden = that._div.find("input:not([style$='display: none;'])");
+            var invalid = get_invalid_inputs(nothidden);
+            save_btn.prop("disabled", invalid.length != 0);
+        });
+
+        // Connect button event handlers.
+        save_btn.click(function() {
+            if (settings.on_save_before(that) == false)
+                return;
+            that._serialize(event_data);
+            settings.on_save(that, event_data);
+            that._div.closest('.qtip').hide();
+        });
+        that._div.find('#button-edit').click(function() {
+            if (settings.on_edit_before(that) == false)
+                return;
+            that._serialize(event_data);
+            settings.on_edit(that, event_data);
+            that._div.closest('.qtip').hide();
+        });
+        that._div.find('#button-delete').click(function() {
+            if (settings.on_save_before(that) == false)
+                return;
+            that._serialize(event_data);
+            settings.on_delete(that, event_data);
+            that._div.closest('.qtip').hide();
+        });
+
+        // Add data to the UI.
+        that._div.find('.general-name').val(event_data.name);
+        that._div.find('.general-date').datepicker("setDate",
+                from_isodate(event_data.date));
+
+        // If the user provided settings.render_extra_content, he may
+        // also want to populate it with data.
+        var extra = that._div.find('#extra-content');
+        settings.deserialize_extra_content(extra, event_data);
+
+        // Trigger validation.
+        that._div.find('input').keyup();
+    };
+
+    this._serialize = function(event_data) {
+        if (!event_data)
+           event_data = {};
+        event_data.date = that._div.find('.general-date').datepicker('getDate');
+        event_data.name = that._div.find('.general-name').val();
+
+        // If the user provided settings.render_extra_content, he may
+        // also want to serialize it.
+        var extra = that._div.find('#extra-content');
+        settings.serialize_extra_content(extra, event_data);
+    };
+
+    this.update({}, true);
+};
 
 // ======================================================================
 // Dialog for editing event details.
 // ======================================================================
-var SpiffCalendarEventDialog = function(div, options) {
-    this._div = div;
+var SpiffCalendarEventDialog = function(options) {
+    this._div = $('<div class="SpiffCalendarDialog" style="display: none"></div>');
     var that = this;
     var settings = $.extend(true, {
         event_data: {date: new Date()},
@@ -448,10 +528,6 @@ var SpiffCalendarEventDialog = function(div, options) {
         on_save: function(event_data) {},
         on_delete: function(event_data) {}
     }, options);
-
-    if (this._div.length != 1)
-        throw new Error('selector needs to match exactly one element');
-    this._div.addClass('SpiffCalendarDialog');
 
     this._recurring_range = function() {
         var html = $(`

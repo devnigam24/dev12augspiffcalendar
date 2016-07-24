@@ -9,6 +9,7 @@
   <link rel="stylesheet" type="text/css" href="lib/jquery.qtip.min.css"/>
   <link rel="stylesheet" type="text/css" href="../css/SpiffCalendar.css" />
   <link rel="stylesheet" type="text/css" href="../css/EventDialog.css" />
+  <link rel="stylesheet" type="text/css" href="../css/EventPopup.css" />
   <link rel="stylesheet" type="text/css" href="demo.css" />
 </head>
 
@@ -19,7 +20,13 @@
 <script src="../src/SpiffCalendar.js" type="text/javascript"></script>
 <script type="text/javascript">
 $(document).ready(function() {
+    var event_dialog = new SpiffCalendarEventDialog();
+	var event_popup = new SpiffCalendarPopup({
+		event_dialog: event_dialog
+	});
     var calendar = new SpiffCalendar($('#demo-calendar'), {
+        event_popup: event_popup,
+        event_dialog: event_dialog,
         event_api: function(start_date, end_date, success_cb) {
             success_cb([
                 {
@@ -51,23 +58,6 @@ $(document).ready(function() {
                 return '';
             return footnote_data.text;
         },
-        /*
-        event_detail_renderer: function(event_data) {
-            var popup = $('#popup-detail');
-            var time = event_data.time ? event_data.time : 'all day';
-            popup.find('#popup-detail-name').text(event_data.name);
-            popup.find('#popup-detail-time').text(time);
-            return popup.clone(true); // MUST return a new clone, the calendar will change it
-        },
-        event_add_renderer: function() {
-            var popup = $('#popup-add');
-            var button = $('#popup-add button');
-            button.click(function() {
-                $('.SpiffCalendarPopup').hide();
-            });
-            return popup.clone(true); // MUST return a new clone, the calendar will change it
-        },
-        */
         on_add_event: function(thedate, container, on_success) {
             var name = container.find('#popup-add-name').val();
             console.log('Add:', thedate, name);
@@ -91,20 +81,5 @@ $(document).ready(function() {
   <div id="demo-calendar">
   </div>
 </div>
-
-<div id="popup-detail" class="popup" style="display: none">
-    <label for="popup-detail-name">Event: </label>
-    <span id="popup-detail-name"></span>
-    <label for="popup-detail-name">When: </label>
-    <span id="popup-detail-time"></span>
-</div>
-
-<div id="popup-add" class="popup" style="display: none">
-    <input type="text" placeholder="Title"/>
-    <div id="popup-buttons">
-        <button>Close</button>
-    </div>
-</div>
-
 </body>
 </html>
