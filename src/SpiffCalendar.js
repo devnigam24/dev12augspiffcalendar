@@ -552,11 +552,13 @@ var SpiffCalendarEventDialog = function(options) {
                   <input type="text" class="datepicker"/>
               </span>
               <span id="recurring-range-times">
-                  <input type="number" min="1" value="1"/>
+                  <input id="recurring-range-times-field" type="number" min="1" value="1"/>
                   <label>times.</label>
               </span>
             </div>`);
         html.find('input.datepicker').datepicker();
+        html.find('input.datepicker').data('validator', validator_required);
+        html.find('#recurring-range-times-field').data('validator', validator_required);
         html.find('select').change(function() {
             html.find('span').hide();
             html.find('#recurring-range-' + $(this).val()).show();
@@ -579,6 +581,7 @@ var SpiffCalendarEventDialog = function(options) {
               <input class="interval" type="number" min="1" value="1" required/>
               day(s),
             </div>`);
+        html.find('input.interval').data('validator', validator_required);
         html.append(that._recurring_range());
         return html;
     };
@@ -591,6 +594,7 @@ var SpiffCalendarEventDialog = function(options) {
               week(s) on
               <div id="weekdays"></div>,
             </div>`);
+        html.find('input.interval').data('validator', validator_required);
 
         // Day selector.
         $.each(weekdays, function(i, val) {
@@ -598,6 +602,9 @@ var SpiffCalendarEventDialog = function(options) {
             day_html.find('input').data('value', Math.pow(2, (i == 0) ? 6 : (i-1)));
             day_html.append(val);
             html.find('#weekdays').append(day_html);
+        });
+        html.find('input').data('validator', function() {
+            return html.find('input:checked').length > 0;
         });
 
         html.append(that._recurring_range());
@@ -629,6 +636,7 @@ var SpiffCalendarEventDialog = function(options) {
               <input id="recurring-month-dom" type="number" min="1" max="31"/>,
             </div>`);
         html.find('#recurring-month-dom').hide();
+        html.find('input.interval').data('validator', validator_required);
 
         // Day selector.
         $.each(weekdays, function(i, val) {
@@ -660,6 +668,7 @@ var SpiffCalendarEventDialog = function(options) {
                <input class="interval" type='number' min='1' value='1' required/>
                year(s),
             </div>`);
+        html.find('input.interval').data('validator', validator_required);
         html.append(that._recurring_range());
         return html;
     };
@@ -726,11 +735,9 @@ var SpiffCalendarEventDialog = function(options) {
                 </div>`);
         that._div.find('#error').hide();
         that._div.on('click', function() { that._show_error(); });
+        that._div.find('#general-name').data('validator', validator_required);
         that._div.find('#general-date').datepicker();
-
-        // Extra content may be provided by the user.
-        settings.render_extra_content(that._div.find('#extra-content'),
-                                      settings.event_data);
+        that._div.find('#general-date').data('validator', validator_required);
 
         // Period selector.
         $.each(periods, function(index, item) {
@@ -756,6 +763,23 @@ var SpiffCalendarEventDialog = function(options) {
         detail.append(that._recurring_month());
         detail.append(that._recurring_year());
         detail.find("button:first").click();
+
+        // Validate fields on input.
+        var save_btn = that._div.find('#button-save');
+        that._div.find('input').keydown(function(e) {
+            $(this).removeClass('error');
+            if (e.keyCode === 13)
+                save_btn.click();
+        });
+        that._div.find('input,select,button').bind('keyup change select click', function(e) {
+            var nothidden = that._div.find("input:visible");
+            var invalid = get_invalid_inputs(nothidden);
+            save_btn.prop("disabled", invalid.length != 0);
+        });
+
+        // Extra content may be provided by the user.
+        settings.render_extra_content(that._div.find('#extra-content'),
+                                      settings.event_data);
 
         that._div.find('#button-save').click(function(e) {
             var errors = that.validate();
@@ -937,6 +961,9 @@ var SpiffCalendarEventDialog = function(options) {
             width: '50em',
             height: 'auto'
         });
+
+        // Trigger validation.
+        that._div.find('input').change();
     };
 
     this.hide = function() {
