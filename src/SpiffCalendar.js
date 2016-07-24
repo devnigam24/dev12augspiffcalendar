@@ -504,9 +504,10 @@ var SpiffCalendarPopup = function(options) {
     };
 
     this._serialize = function(event_data) {
-        if (!event_data)
-           event_data = {};
-        event_data.date = that._div.find('.general-date').datepicker('getDate');
+        if (!event_data) {
+            var date = that._div.find('.general-date').datepicker('getDate');
+            event_data = {date: date};
+        }
         event_data.name = that._div.find('.general-name').val();
 
         // If the user provided settings.render_extra_content, he may
