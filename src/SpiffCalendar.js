@@ -437,7 +437,9 @@ var SpiffCalendarPopup = function(options) {
                         <button id="button-save">Save</button>
                     </div>
                 </div>`);
-        that._div.find('.general-date').datepicker();
+        that._div.find('.general-date').datepicker({
+            onSelect: function() { this.blur(); }
+        });
 
         // If no event_data was passed, assume we are adding a new event.
         if (is_new_event == true) {
