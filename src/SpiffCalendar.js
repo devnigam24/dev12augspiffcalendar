@@ -308,7 +308,7 @@ var SpiffCalendar = function(div, options) {
                     events.append(that._calendar_event(ev, date));
                 });
                 var footnote = settings.footnote_renderer(day_data.footnote);
-                day_div.find(".footnote").append(footnote);
+                day_div.find(".footnote").text(footnote);
             });
         });
     };
