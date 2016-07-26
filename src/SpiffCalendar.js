@@ -268,13 +268,54 @@ var SpiffCalendar = function(div, options) {
         return html;
     };
 
+    this.set_range = function(start, last) {
+        var today = new Date();
+        if (typeof start === "undefined")
+            settings.start = new Date(today.getFullYear(), today.getMonth(), 1);
+        else
+            settings.start = new Date(start.getFullYear(),
+                                      start.getMonth(),
+                                      1);
+        if (typeof last === "undefined" || last < start)
+            settings.last = new Date(settings.start.getFullYear(),
+                                     settings.start.getMonth() + 1,
+                                     0);
+        else
+            settings.last = last;
+    };
+
+    this._get_visible_range = function() {
+        var thestart = new Date(settings.start.getFullYear(),
+                                settings.start.getMonth(),
+                                settings.start.getDate());
+        thestart.setDate(thestart.getDate() - thestart.getDay());
+        var thelast = new Date(settings.last.getFullYear(),
+                               settings.last.getMonth(),
+                               settings.last.getDate());
+        thelast.setDate(thelast.getDate() + 6 - thelast.getDay());
+        return {start: thestart, last: thelast};
+    };
+
     this.refresh = function() {
-        that._div.empty();
-        that._init();
+        var range = that._get_visible_range();
+        settings.event_api(range.start, range.last, function(data) {
+            $.each(data, function(index, day_data) {
+                var date = day_data.date.replace(/-0/g, '-');
+                var day_div = that._div.find('.day[data-date="' + date + '"]');
+                var events = day_div.find('.events');
+                events.empty();
+                $.each(day_data.events, function(index, ev) {
+                    events.append(that._calendar_event(ev, date));
+                });
+                var footnote = settings.footnote_renderer(day_data.footnote);
+                day_div.find(".footnote").append(footnote);
+            });
+        });
     };
 
     this._init = function() {
-        this._div.append(`
+        that._div.empty();
+        that._div.append(`
             <div id="navbar">
                 <h2 id="month"></h2>
                 <input id="previous" type="button" value="&lt;"/>
@@ -290,38 +331,17 @@ var SpiffCalendar = function(div, options) {
             table.find("tr").append("<th>" + val + "</th>");
         });
 
-        // Default range is current month.
-        var today = new Date();
-        if (typeof settings.start === "undefined")
-            settings.start = new Date(today.getFullYear(), today.getMonth(), 1);
-        else
-            settings.start = new Date(settings.start.getFullYear(),
-                                      settings.start.getMonth(),
-                                      1);
-        if (typeof settings.last === "undefined"
-                || settings.last < settings.start)
-            settings.last = new Date(settings.start.getFullYear(),
-                                     settings.start.getMonth() + 1,
-                                     0);
+        // Expand the range to start Sunday, end Saturday.
+        var visible = that._get_visible_range();
 
         // Update navbar text.
         var month_name = months[settings.start.getMonth()];
         var year = settings.start.getFullYear();
         this._div.find("#month").text(month_name + " " + year);
 
-        // Expand the range to start Sunday, end Saturday.
-        var thestart = new Date(settings.start.getFullYear(),
-                                settings.start.getMonth(),
-                                settings.start.getDate());
-        thestart.setDate(thestart.getDate() - thestart.getDay());
-        var thelast = new Date(settings.last.getFullYear(),
-                               settings.last.getMonth(),
-                               settings.last.getDate());
-        thelast.setDate(thelast.getDate() + 6 - thelast.getDay());
-
         // Update the user interface.
-        var current_date = new Date(thestart);
-        while(current_date <= thelast) {
+        var current_date = new Date(visible.start);
+        while(current_date <= visible.last) {
             var week = this._calendar_week(settings.start,
                                            settings.last,
                                            current_date);
@@ -331,19 +351,7 @@ var SpiffCalendar = function(div, options) {
         }
 
         // Trigger event refresh.
-        settings.event_api(thestart, thelast, function(data) {
-            $.each(data, function(index, day_data) {
-                var date = day_data.date.replace(/-0/g, '-');
-                var day_div = table.find('*[data-date="' + date + '"]');
-                var events = day_div.find('.events');
-                events.empty();
-                $.each(day_data.events, function(index, ev) {
-                    events.append(that._calendar_event(ev, date));
-                });
-                var footnote = settings.footnote_renderer(day_data.footnote);
-                day_div.find(".footnote").append(footnote);
-            });
-        });
+        that.refresh();
 
         // Connect navbar button events.
         this._div.find("#previous").click(this.to_previous_month);
@@ -384,26 +392,27 @@ var SpiffCalendar = function(div, options) {
     };
 
     this.to_previous_month = function() {
-        settings.start = new Date(settings.start.getFullYear(),
-                                  settings.start.getMonth()-1, 1);
-        settings.last = undefined;
-        that.refresh();
+        var start = new Date(settings.start.getFullYear(),
+                             settings.start.getMonth()-1, 1);
+        that.set_range(start, undefined);
+        that._init();
     };
 
     this.to_today = function() {
-        settings.start = new Date();
-        settings.start.setDate(1);
-        settings.last = undefined;
-        that.refresh();
+        var start = new Date();
+        start.setDate(1);
+        that.set_range(start, undefined);
+        that._init();
     };
 
     this.to_next_month = function() {
-        settings.start = new Date(settings.start.getFullYear(),
-                                  settings.start.getMonth()+1, 1);
-        settings.last = undefined;
-        that.refresh();
+        var start = new Date(settings.start.getFullYear(),
+                             settings.start.getMonth()+1, 1);
+        that.set_range(start, undefined);
+        that._init();
     };
 
+    this.set_range(settings.start, settings.last);
     this._init();
 };
 
