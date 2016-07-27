@@ -19,8 +19,8 @@ var periods = ['ONE_TIME', 'DAILY', 'WEEKLY', 'MONTHLY', 'ANNUALLY'];
 var period_names = $.map(periods, function(item, index) {
     return item.toLowerCase()
           .split('_')
-          .map(i => i[0].toUpperCase() + i.substring(1))
-          .join(' ')
+          .map(function(i) { return i[0].toUpperCase() + i.substring(1); })
+          .join(' ');
 });
 
 var weekdays = ['Sunday',
