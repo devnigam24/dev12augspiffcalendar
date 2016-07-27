@@ -128,7 +128,7 @@ var SpiffCalendar = function(div, options) {
         events: {
             render: function(event, api) {
                 $(window).bind('keydown', function(e) {
-                    if (e.keyCode === 27) { api.hide(e); }
+                    if (e.keyCode === 27) { api.hide(); }
                 });
             },
             hide: function(event, api) {
