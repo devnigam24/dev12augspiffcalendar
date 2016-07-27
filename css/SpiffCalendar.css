@@ -60,6 +60,7 @@ flex: 1 1 0;
 display: flex;
 flex-direction: row;
 width: 100%;
+min-height: 2.8em;
 }
 
 .SpiffCalendar table tr:first-child {
@@ -73,6 +74,8 @@ flex: 1;
 }
 
 .SpiffCalendar table th {
+justify-content: center;
+align-items: center;
 text-transform: uppercase;
 font-size: 1.2em;
 color: #4bcbf2;
