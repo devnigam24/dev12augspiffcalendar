@@ -111,7 +111,8 @@ var SpiffCalendar = function(div, options) {
         event_renderer: function(e) { return e; },
         event_popup: undefined,
         footnote_renderer: function(e) { return e; },
-        on_move_event: function() {}
+        on_move_event: function() {},
+        on_refresh: function() {}
     }, options);
     var qtip_settings = {
         style: {
@@ -298,6 +299,7 @@ var SpiffCalendar = function(div, options) {
 
     this.refresh = function() {
         var range = that._get_visible_range();
+        settings.on_refresh();
         settings.event_api(range.start, range.last, function(data) {
             $.each(data, function(index, day_data) {
                 var date = day_data.date.replace(/-0/g, '-');
