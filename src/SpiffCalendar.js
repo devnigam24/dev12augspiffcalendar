@@ -760,6 +760,10 @@ var SpiffCalendarEventDialog = function(options) {
         detail.append(that._recurring_year());
         detail.find("button:first").click();
 
+        // Extra content may be provided by the user.
+        settings.render_extra_content(that._div.find('#extra-content'),
+                                      settings.event_data);
+
         // Validate fields on input.
         var save_btn = that._div.find('#button-save');
         that._div.find('input').keydown(function(e) {
@@ -778,10 +782,6 @@ var SpiffCalendarEventDialog = function(options) {
             var invalid = get_invalid_fields(nothidden);
             save_btn.prop("disabled", invalid.length != 0);
         });
-
-        // Extra content may be provided by the user.
-        settings.render_extra_content(that._div.find('#extra-content'),
-                                      settings.event_data);
 
         that._div.find('#button-save').click(function(e) {
             var nothidden = that._div.find("input:visible");
