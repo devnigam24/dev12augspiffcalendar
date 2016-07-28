@@ -595,7 +595,7 @@ var SpiffCalendarEventDialog = function(options) {
         var html = $(`
             <div class="recurring-day" style="display: none">
               Repeat every
-              <input class="interval" type="number" min="1" value="1" required/>
+              <input class="interval" type="number" min="1" value="1"/>
               day(s),
             </div>`);
         html.find('input.interval').data('validator', validator_required);
@@ -607,7 +607,7 @@ var SpiffCalendarEventDialog = function(options) {
         var html = $(`
             <div class="recurring-week" style="display: none">
               Repeat every
-              <input class="interval" type="number" min="1" value="1" required/>
+              <input class="interval" type="number" min="1" value="1"/>
               week(s) on
               <div id="weekdays"></div>,
             </div>`);
@@ -633,7 +633,7 @@ var SpiffCalendarEventDialog = function(options) {
         var html = $(`
             <div class="recurring-month" style="display: none">
               Repeat every
-              <input class="interval" type="number" min="1" value="1" required/>
+              <input class="interval" type="number" min="1" value="1"/>
               month(s), on
               <span id="recurring-month-byday">
               the
@@ -683,7 +683,7 @@ var SpiffCalendarEventDialog = function(options) {
         var html = $(`
              <div class="recurring-year" style="display: none">
                Repeat every
-               <input class="interval" type='number' min='1' value='1' required/>
+               <input class="interval" type='number' min='1' value='1'/>
                year(s),
             </div>`);
         html.find('input.interval').data('validator', validator_required);
@@ -718,8 +718,8 @@ var SpiffCalendarEventDialog = function(options) {
     this._init = function() {
         that._div.append(`
                 <div class="general">
-                    <input id="general-name" type="text" placeholder="Name" required/>
-                    <input id="general-date" type="text" placeholder="Date" required/>
+                    <input id="general-name" type="text" placeholder="Name"/>
+                    <input id="general-date" type="text" placeholder="Date"/>
                 </div>
                 <div id="extra-content"></div>
                 <div id="recurring-period" class="radio-bar">
