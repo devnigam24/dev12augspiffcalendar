@@ -1,17 +1,16 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
-  <title>SpiffCalendar Demo</title>
-  <meta http-equiv="content-type" content="text/html;charset=utf-8" />
-  <link rel="stylesheet" type="text/css" href="lib/jquery-ui.min.css"/>
-  <link rel="stylesheet" type="text/css" href="lib/jquery.qtip.min.css"/>
-  <link rel="stylesheet" type="text/css" href="../css/SpiffCalendar.css" />
-  <link rel="stylesheet" type="text/css" href="../css/EventDialog.css" />
-  <link rel="stylesheet" type="text/css" href="../css/EventPopup.css" />
-  <link rel="stylesheet" type="text/css" href="demo.css" />
-</head>
+<title>SpiffCalendar Demo</title>
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=10" />
+<link rel="stylesheet" type="text/css" href="lib/jquery-ui.min.css"/>
+<link rel="stylesheet" type="text/css" href="lib/jquery.qtip.min.css"/>
+<link rel="stylesheet" type="text/css" href="../css/SpiffCalendar.css" />
+<link rel="stylesheet" type="text/css" href="../css/EventDialog.css" />
+<link rel="stylesheet" type="text/css" href="../css/EventPopup.css" />
+<link rel="stylesheet" type="text/css" href="demo.css" />
 
 <script src="lib/jquery-3.0.0.min.js" type="text/javascript"></script>
 <script src="lib/jquery-ui.min.js" type="text/javascript"></script>
@@ -21,9 +20,9 @@
 <script type="text/javascript">
 $(document).ready(function() {
     var event_dialog = new SpiffCalendarEventDialog();
-	var event_popup = new SpiffCalendarPopup({
-		event_dialog: event_dialog
-	});
+    var event_popup = new SpiffCalendarPopup({
+        event_dialog: event_dialog
+    });
     var calendar = new SpiffCalendar($('#demo-calendar'), {
         event_popup: event_popup,
         event_dialog: event_dialog,
@@ -51,7 +50,7 @@ $(document).ready(function() {
         event_renderer: function(container, event_data) {
             if (event_data.time)
                 return event_data.time + ' ' + event_data.name;
-            return $(`<span class="fancy"></span>`).text(event_data.name);
+            return $('<span class="fancy"></span>').text(event_data.name);
         },
         footnote_renderer: function(footnote_data) {
             if (!footnote_data)
@@ -73,6 +72,7 @@ $(document).ready(function() {
     });
 });
 </script>
+</head>
 
 <body>
 

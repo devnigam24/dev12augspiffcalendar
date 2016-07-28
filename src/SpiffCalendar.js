@@ -156,7 +156,7 @@ var SpiffCalendar = function(div, options) {
     this._div.addClass('SpiffCalendar');
 
     this._calendar_event = function(event_data, date) {
-        var html = $(`<div class="event"></div>`);
+        var html = $('<div class="event"></div>');
         html.data('event', event_data);
         if (event_data.time)
             html.addClass('timed');
@@ -219,14 +219,14 @@ var SpiffCalendar = function(div, options) {
     };
 
     this._calendar_day = function(date) {
-        var html = $(`
-            <td class="day">
-                <div class="wrapper">
-                    <div class="day_number"></div>
-                    <div class="events"></div>
-                    <div class="footnote"></div>
-                </div>
-            </td>`);
+        var html = $('\
+            <td class="day">\
+                <div class="wrapper">\
+                    <div class="day_number"></div>\
+                    <div class="events"></div>\
+                    <div class="footnote"></div>\
+                </div>\
+            </td>');
         html.droppable({
             accept: function(d) {
                 return d.closest('.event').length > 0 && !d.closest('.day').is(this);
@@ -252,7 +252,7 @@ var SpiffCalendar = function(div, options) {
     };
 
     this._calendar_week = function(range_start, range_end, date) {
-        var html = $(`<tr class="week"></tr>`);
+        var html = $('<tr class="week"></tr>');
 
         var last = new Date(date);
         last.setDate(date.getDate() + 6);
@@ -317,17 +317,17 @@ var SpiffCalendar = function(div, options) {
 
     this._init = function() {
         that._div.empty();
-        that._div.append(`
-            <div id="navbar">
-                <h2 id="month"></h2>
-                <input id="previous" type="button" value="&lt;"/>
-                <input id="current" type="button" value="&bull;"/>
-                <input id="next" type="button" value="&gt;"/>
-            </div>
-            <table>
-                <tr>
-                </tr>
-            </table>`);
+        that._div.append('\
+            <div id="navbar">\
+                <h2 id="month"></h2>\
+                <input id="previous" type="button" value="&lt;"/>\
+                <input id="current" type="button" value="&bull;"/>\
+                <input id="next" type="button" value="&gt;"/>\
+            </div>\
+            <table>\
+                <tr>\
+                </tr>\
+            </table>');
         var table = this._div.find('table');
         $.each(weekdays_short, function(i, val) {
             table.find("tr").append("<th>" + val + "</th>");
@@ -443,19 +443,19 @@ var SpiffCalendarPopup = function(options) {
     }, options);
 
     this.update = function(event_data, is_new_event) {
-        that._div = $(`
-                <div id="content" style="display: none">
-                    <div class="general">
-                        <input class="general-name" type="text" placeholder="Event"/>
-                        <input class="general-date" type="text" placeholder="Date"/>
-                    </div>
-                    <div id="extra-content"></div>
-                    <div id="popup-buttons">
-                        <button id="button-delete">Delete</button>
-                        <button id="button-edit">Edit Series...</button>
-                        <button id="button-save">Save</button>
-                    </div>
-                </div>`);
+        that._div = $('\
+                <div id="content" style="display: none">\
+                    <div class="general">\
+                        <input class="general-name" type="text" placeholder="Event"/>\
+                        <input class="general-date" type="text" placeholder="Date"/>\
+                    </div>\
+                    <div id="extra-content"></div>\
+                    <div id="popup-buttons">\
+                        <button id="button-delete">Delete</button>\
+                        <button id="button-edit">Edit Series...</button>\
+                        <button id="button-save">Save</button>\
+                    </div>\
+                </div>');
         that._div.find('.general-date').datepicker({
             onSelect: function() {
                 this.blur();
@@ -560,21 +560,21 @@ var SpiffCalendarEventDialog = function(options) {
     }, options);
 
     this._recurring_range = function() {
-        var html = $(`
-            <div class="recurring-range">
-              <select>
-                  <option value="forever">forever</option>
-                  <option value="until">until</option>
-                  <option value="times">until counting</option>
-              </select>
-              <span id="recurring-range-until">
-                  <input type="text" class="datepicker"/>
-              </span>
-              <span id="recurring-range-times">
-                  <input id="recurring-range-times-field" type="number" min="1" value="1"/>
-                  <label>times.</label>
-              </span>
-            </div>`);
+        var html = $('\
+            <div class="recurring-range">\
+              <select>\
+                  <option value="forever">forever</option>\
+                  <option value="until">until</option>\
+                  <option value="times">until counting</option>\
+              </select>\
+              <span id="recurring-range-until">\
+                  <input type="text" class="datepicker"/>\
+              </span>\
+              <span id="recurring-range-times">\
+                  <input id="recurring-range-times-field" type="number" min="1" value="1"/>\
+                  <label>times.</label>\
+              </span>\
+            </div>');
         html.find('input.datepicker').datepicker();
         html.find('input.datepicker').data('validator', validator_required);
         html.find('#recurring-range-times-field').data('validator', validator_required);
@@ -587,32 +587,32 @@ var SpiffCalendarEventDialog = function(options) {
     };
 
     this._recurring_never = function() {
-        var html = $(`
-            <div class="recurring-never" style="display: none">
-            </div>`);
+        var html = $('\
+            <div class="recurring-never" style="display: none">\
+            </div>');
         return html;
     };
 
     this._recurring_day = function() {
-        var html = $(`
-            <div class="recurring-day" style="display: none">
-              Repeat every
-              <input class="interval" type="number" min="1" value="1"/>
-              day(s),
-            </div>`);
+        var html = $('\
+            <div class="recurring-day" style="display: none">\
+              Repeat every\
+              <input class="interval" type="number" min="1" value="1"/>\
+              day(s),\
+            </div>');
         html.find('input.interval').data('validator', validator_required);
         html.append(that._recurring_range());
         return html;
     };
 
     this._recurring_week = function() {
-        var html = $(`
-            <div class="recurring-week" style="display: none">
-              Repeat every
-              <input class="interval" type="number" min="1" value="1"/>
-              week(s) on
-              <div id="weekdays"></div>,
-            </div>`);
+        var html = $('\
+            <div class="recurring-week" style="display: none">\
+              Repeat every\
+              <input class="interval" type="number" min="1" value="1"/>\
+              week(s) on\
+              <div id="weekdays"></div>,\
+            </div>');
         html.find('input.interval').data('validator', validator_required);
 
         // Day selector.
@@ -632,29 +632,29 @@ var SpiffCalendarEventDialog = function(options) {
     };
 
     this._recurring_month = function() {
-        var html = $(`
-            <div class="recurring-month" style="display: none">
-              Repeat every
-              <input class="interval" type="number" min="1" value="1"/>
-              month(s), on
-              <span id="recurring-month-byday">
-              the
-                  <select id="recurring-month-count">
-                        <option value="1">first</option>
-                        <option value="2">second</option>
-                        <option value="4">third</option>
-                        <option value="8">fourth</option>
-                        <option value="-1">last</option>
-                        <option value="-2">second-last</option>
-                        <option value="-4">third-last</option>
-                        <option value="-8">fourth-last</option>
-                  </select>
-              </span>
-              <select id="recurring-month-weekday">
-                  <option value="0">day</option>
-              </select>
-              <input id="recurring-month-dom" type="number" min="1" max="31"/>,
-            </div>`);
+        var html = $('\
+            <div class="recurring-month" style="display: none">\
+              Repeat every\
+              <input class="interval" type="number" min="1" value="1"/>\
+              month(s), on\
+              <span id="recurring-month-byday">\
+              the\
+                  <select id="recurring-month-count">\
+                        <option value="1">first</option>\
+                        <option value="2">second</option>\
+                        <option value="4">third</option>\
+                        <option value="8">fourth</option>\
+                        <option value="-1">last</option>\
+                        <option value="-2">second-last</option>\
+                        <option value="-4">third-last</option>\
+                        <option value="-8">fourth-last</option>\
+                  </select>\
+              </span>\
+              <select id="recurring-month-weekday">\
+                  <option value="0">day</option>\
+              </select>\
+              <input id="recurring-month-dom" type="number" min="1" max="31"/>,\
+            </div>');
         html.find('#recurring-month-dom').hide();
         html.find('input.interval').data('validator', validator_required);
 
@@ -682,12 +682,12 @@ var SpiffCalendarEventDialog = function(options) {
     };
 
     this._recurring_year = function() {
-        var html = $(`
-             <div class="recurring-year" style="display: none">
-               Repeat every
-               <input class="interval" type='number' min='1' value='1'/>
-               year(s),
-            </div>`);
+        var html = $('\
+             <div class="recurring-year" style="display: none">\
+               Repeat every\
+               <input class="interval" type="number" min="1" value="1"/>\
+               year(s),\
+            </div>');
         html.find('input.interval').data('validator', validator_required);
         html.append(that._recurring_range());
         return html;
@@ -718,20 +718,20 @@ var SpiffCalendarEventDialog = function(options) {
     };
 
     this._init = function() {
-        that._div.append(`
-                <div class="general">
-                    <input id="general-name" type="text" placeholder="Name"/>
-                    <input id="general-date" type="text" placeholder="Date"/>
-                </div>
-                <div id="extra-content"></div>
-                <div id="recurring-period" class="radio-bar">
-                </div>
-                <div id="recurring-detail">
-                </div>
-                <div id="buttons">
-                    <button id="button-delete">Delete</button>
-                    <button id="button-save">Save</button>
-                </div>`);
+        that._div.append('\
+                <div class="general">\
+                    <input id="general-name" type="text" placeholder="Name"/>\
+                    <input id="general-date" type="text" placeholder="Date"/>\
+                </div>\
+                <div id="extra-content"></div>\
+                <div id="recurring-period" class="radio-bar">\
+                </div>\
+                <div id="recurring-detail">\
+                </div>\
+                <div id="buttons">\
+                    <button id="button-delete">Delete</button>\
+                    <button id="button-save">Save</button>\
+                </div>');
         that._div.find('#error').hide();
         that._div.find('#general-name').data('validator', validator_required);
         that._div.find('#general-date').datepicker();
