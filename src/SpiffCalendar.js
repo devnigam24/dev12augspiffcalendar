@@ -105,6 +105,7 @@ var SpiffCalendar = function(div, options) {
     this._div = div;
     var that = this;
     var settings = $.extend(true, {
+        href: undefined,
         period: 'month',
         start: undefined,
         last: undefined,
@@ -451,8 +452,12 @@ var SpiffCalendar = function(div, options) {
         that._init();
     };
 
-    this.set_range(settings.start, settings.last);
-    this._init();
+    if (settings.href)
+        this.href(settings.href);
+    else {
+        this.set_range(settings.start, settings.last);
+        this._init();
+    }
 };
 
 // ======================================================================
