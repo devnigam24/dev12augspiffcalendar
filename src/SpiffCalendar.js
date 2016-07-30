@@ -105,6 +105,7 @@ var SpiffCalendar = function(div, options) {
     this._div = div;
     var that = this;
     var settings = $.extend(true, {
+        period: 'month',
         start: undefined,
         last: undefined,
         event_api: function() { return {}; },
@@ -270,29 +271,42 @@ var SpiffCalendar = function(div, options) {
     };
 
     this.set_range = function(start, last) {
+        // Defines the days that the user wants to see. The actual visible
+        // range may differ: This range may later be expanded to begin at the
+        // a Sunday, for example.
         var today = new Date();
-        if (typeof start === "undefined")
+        if (typeof start !== "undefined")
+            settings.start = start;
+        else if (settings.period == "month")
             settings.start = new Date(today.getFullYear(), today.getMonth(), 1);
         else
-            settings.start = new Date(start.getFullYear(),
-                                      start.getMonth(),
-                                      1);
-        if (typeof last === "undefined" || last < start)
+            settings.start = new Date(today.getFullYear(),
+                                      today.getMonth(),
+                                      today.getDate() - today.getDay());
+        if (typeof last !== "undefined" && last >= settings.start) {
+            settings.last = last;
+            return;
+        }
+        if (settings.period == "month")
             settings.last = new Date(settings.start.getFullYear(),
                                      settings.start.getMonth() + 1,
                                      0);
-        else
-            settings.last = last;
+        else {
+            settings.last = new Date(settings.start.getFullYear(),
+                                     settings.start.getMonth(),
+                                     settings.start.getDate() + settings.period - 1);
+        }
     };
 
     this._get_visible_range = function() {
         var thestart = new Date(settings.start.getFullYear(),
                                 settings.start.getMonth(),
                                 settings.start.getDate());
-        thestart.setDate(thestart.getDate() - thestart.getDay());
         var thelast = new Date(settings.last.getFullYear(),
                                settings.last.getMonth(),
                                settings.last.getDate());
+        // Visible range always starts on a Sunday.
+        thestart.setDate(thestart.getDate() - thestart.getDay());
         thelast.setDate(thelast.getDate() + 6 - thelast.getDay());
         return {start: thestart, last: thelast};
     };
@@ -394,22 +408,30 @@ var SpiffCalendar = function(div, options) {
     };
 
     this.previous = function() {
-        var start = new Date(settings.start.getFullYear(),
-                             settings.start.getMonth()-1, 1);
+        if (settings.period == 'month')
+            var start = new Date(settings.start.getFullYear(),
+                                 settings.start.getMonth()-1, 1);
+        else
+            var start = new Date(settings.start.getFullYear(),
+                                 settings.start.getMonth(),
+                                 settings.start.getDate() - settings.period);
         that.set_range(start, undefined);
         that._init();
     };
 
     this.to_today = function() {
-        var start = new Date();
-        start.setDate(1);
-        that.set_range(start, undefined);
+        that.set_range(undefined, undefined);
         that._init();
     };
 
     this.next = function() {
-        var start = new Date(settings.start.getFullYear(),
-                             settings.start.getMonth()+1, 1);
+        if (settings.period == 'month')
+            var start = new Date(settings.start.getFullYear(),
+                                 settings.start.getMonth()+1, 1);
+        else
+            var start = new Date(settings.start.getFullYear(),
+                                 settings.start.getMonth(),
+                                 settings.start.getDate() + settings.period);
         that.set_range(start, undefined);
         that._init();
     };

@@ -22,11 +22,15 @@
 <script src="../src/SpiffCalendar.js" type="text/javascript"></script>
 <script type="text/javascript">
 $(document).ready(function() {
+    // Prepare dialog windows.
     var event_dialog = new SpiffCalendarEventDialog();
     var event_popup = new SpiffCalendarPopup({
         event_dialog: event_dialog
     });
+
+    // Init the calendar.
     var calendar = new SpiffCalendar($('#demo-calendar'), {
+        period: "month", // "month", or an integer for number of days
         event_popup: event_popup,
         event_dialog: event_dialog,
         event_api: function(start_date, end_date, success_cb) {
