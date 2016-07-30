@@ -356,9 +356,9 @@ var SpiffCalendar = function(div, options) {
         that.refresh();
 
         // Connect navbar button events.
-        this._div.find("#previous").click(this.to_previous_month);
+        this._div.find("#previous").click(this.previous);
         this._div.find("#current").click(this.to_today);
-        this._div.find("#next").click(this.to_next_month);
+        this._div.find("#next").click(this.next);
 
         if (settings.event_popup) {
             table.find(".day").qtip($.extend(true, qtip_settings, {
@@ -383,9 +383,9 @@ var SpiffCalendar = function(div, options) {
 
         this._div.children().bind('wheel mousewheel DOMMouseScroll', function (event) {
             if (event.originalEvent.wheelDelta > 0 || event.originalEvent.detail < 0)
-                that.to_next_month();
+                that.next();
             else
-                that.to_previous_month();
+                that.previous();
         });
     };
 
@@ -393,7 +393,7 @@ var SpiffCalendar = function(div, options) {
         return that._div.find('.day.active').data('date');
     };
 
-    this.to_previous_month = function() {
+    this.previous = function() {
         var start = new Date(settings.start.getFullYear(),
                              settings.start.getMonth()-1, 1);
         that.set_range(start, undefined);
@@ -407,7 +407,7 @@ var SpiffCalendar = function(div, options) {
         that._init();
     };
 
-    this.to_next_month = function() {
+    this.next = function() {
         var start = new Date(settings.start.getFullYear(),
                              settings.start.getMonth()+1, 1);
         that.set_range(start, undefined);
