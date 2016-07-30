@@ -56,7 +56,7 @@ width: 100%;
 }
 
 .SpiffCalendar table tr {
-flex: 1;
+flex: 1 1 0;
 display: flex;
 flex-direction: row;
 width: 100%;
