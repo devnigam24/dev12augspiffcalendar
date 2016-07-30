@@ -28,9 +28,13 @@ $(document).ready(function() {
         event_dialog: event_dialog
     });
 
+    // Needs to be done before initializing der calendar, because we
+       // change the hash in the on_refresh callback.
+    var hash = window.location.hash.substring(1);
+
     // Init the calendar.
     var calendar = new SpiffCalendar($('#demo-calendar'), {
-        period: "month", // "month", or an integer for number of days
+        period: 14, // "month", or an integer for number of days
         event_popup: event_popup,
         event_dialog: event_dialog,
         event_api: function(start_date, end_date, success_cb) {
@@ -64,6 +68,9 @@ $(document).ready(function() {
                 return '';
             return footnote_data.text;
         },
+        on_refresh: function(cal) {
+            window.location.hash = cal.href();
+        },
         on_add_event: function(thedate, container, on_success) {
             var name = container.find('#popup-add-name').val();
             console.log('Add:', thedate, name);
@@ -77,6 +84,9 @@ $(document).ready(function() {
             on_success({});
         }
     });
+
+    if (hash)
+        calendar.href(hash);
 });
 </script>
 </head>

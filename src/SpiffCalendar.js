@@ -311,9 +311,24 @@ var SpiffCalendar = function(div, options) {
         return {start: thestart, last: thelast};
     };
 
+    this.href = function(href) {
+        if (!href)
+            return settings.period + '/' + isodate(settings.start);
+        href = href.split('/');
+        var period = href[0];
+        if (period == "month")
+            settings.period = period;
+        else
+            settings.period = parseInt(period);
+        if (href.length > 1)
+            var start = from_isodate(href[1]);
+        that.set_range(start);
+        this._init();
+    };
+
     this.refresh = function() {
         var range = that._get_visible_range();
-        settings.on_refresh();
+        settings.on_refresh(that);
         settings.event_api(range.start, range.last, function(data) {
             $.each(data, function(index, day_data) {
                 var date = day_data.date.replace(/-0/g, '-');
