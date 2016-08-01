@@ -109,13 +109,17 @@ min-height: 1.4em;
 
 .SpiffCalendar .day .footnote {
 flex: 0;
-visibility: hidden;
+opacity: 0;
 font-size: .9em;
 min-height: 1.7em;
+-webkit-transition: opacity .4s;
+-moz-transition: opacity .4s;
+-o-transition: opacity .4s;
+transition: opacity .4s;
 }
 
 .SpiffCalendar .day:hover .footnote {
-visibility: visible;
+opacity: 1;
 }
 
 .SpiffCalendar .events {
