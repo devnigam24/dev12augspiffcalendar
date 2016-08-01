@@ -111,7 +111,7 @@ min-height: 1.4em;
 flex: 0;
 visibility: hidden;
 font-size: .9em;
-min-height: 1em;
+min-height: 1.7em;
 }
 
 .SpiffCalendar .day:hover .footnote {

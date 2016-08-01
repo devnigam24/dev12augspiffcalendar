@@ -226,7 +226,7 @@ var SpiffCalendar = function(div, options) {
                 <div class="wrapper">\
                     <div class="day_number"></div>\
                     <div class="events"></div>\
-                    <div class="footnote"></div>\
+                    <div class="footnote center"></div>\
                 </div>\
             </td>');
         html.droppable({
