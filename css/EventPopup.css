@@ -23,14 +23,6 @@ width: 30vw;
 min-width: 35em;
 }
 
-.SpiffCalendarPopup input {
-display: block;
-width: 100%;
-margin: 0 auto .5em auto;
-padding: .4em;
-border: 1px solid #ddd;
-}
-
 .SpiffCalendarPopup input.error {
 background-color: #f66;
 border: 1px solid red;
