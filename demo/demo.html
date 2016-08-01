@@ -14,11 +14,12 @@
 <link rel="stylesheet" type="text/css" href="../css/EventDialog.css" />
 <link rel="stylesheet" type="text/css" href="../css/EventPopup.css" />
 <link rel="stylesheet" type="text/css" href="demo.css" />
-
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/css/materialize.min.css">
 <script src="lib/jquery-3.0.0.min.js" type="text/javascript"></script>
 <script src="lib/jquery-ui.min.js" type="text/javascript"></script>
 <script src="lib/jquery.i18n.min.js" type="text/javascript"></script>
 <script src="lib/jquery.qtip.min.js" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js"></script>
 <script src="../src/SpiffCalendar.js" type="text/javascript"></script>
 <script type="text/javascript">
 $(document).ready(function() {
@@ -31,7 +32,7 @@ $(document).ready(function() {
     // Init the calendar.
     var calendar = new SpiffCalendar($('#demo-calendar'), {
         href: window.location.hash.substring(1),
-        period: 14, // "month", or an integer for number of days
+        period: "month", // "month", or an integer for number of days
         event_popup: event_popup,
         event_dialog: event_dialog,
         event_api: function(start_date, end_date, success_cb) {
@@ -87,7 +88,7 @@ $(document).ready(function() {
 
 <body>
 
-<div id="header"><h1>SpiffCalendar Demo</h1></div>
+<div id="header"><h1 class="center">SpiffCalendar Demo</h1></div>
 <div id="wrap">
   <div id="demo-calendar">
   </div>

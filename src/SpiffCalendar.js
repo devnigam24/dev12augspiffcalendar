@@ -222,7 +222,7 @@ var SpiffCalendar = function(div, options) {
 
     this._calendar_day = function(date) {
         var html = $('\
-            <td class="day">\
+            <td class="day card hoverable">\
                 <div class="wrapper">\
                     <div class="day_number"></div>\
                     <div class="events"></div>\
@@ -350,9 +350,9 @@ var SpiffCalendar = function(div, options) {
         that._div.append('\
             <div id="navbar">\
                 <h2 id="month"></h2>\
-                <input id="previous" type="button" value="&lt;"/>\
-                <input id="current" type="button" value="&bull;"/>\
-                <input id="next" type="button" value="&gt;"/>\
+                <input id="previous" type="button" class="btn hoverable" value="&lt;"/>\
+                <input id="current" type="button" class="btn hoverable" value="&bull;"/>\
+                <input id="next" type="button" class="btn hoverable" value="&gt;"/>\
             </div>\
             <table>\
                 <tr>\
@@ -406,8 +406,8 @@ var SpiffCalendar = function(div, options) {
                 }
             }));
             table.find('.day').mousedown(function() {
-                table.find('.day').removeClass('active');
-                $(this).addClass('active');
+                table.find('.day').removeClass('active z-depth-3');
+                $(this).addClass('active z-depth-3');
             });
         }
 
@@ -493,9 +493,9 @@ var SpiffCalendarPopup = function(options) {
                     </div>\
                     <div id="extra-content"></div>\
                     <div id="popup-buttons">\
-                        <button id="button-delete">Delete</button>\
-                        <button id="button-edit">Edit Series...</button>\
-                        <button id="button-save">Save</button>\
+                        <button id="button-delete" class="btn waves-effect">Delete</button>\
+                        <button id="button-edit" class="btn waves-effect">Edit Series...</button>\
+                        <button id="button-save" class="btn waves-effect">Save</button>\
                     </div>\
                 </div>');
         that._div.find('.general-date').datepicker({
@@ -590,7 +590,7 @@ var SpiffCalendarPopup = function(options) {
 // Dialog for editing event details.
 // ======================================================================
 var SpiffCalendarEventDialog = function(options) {
-    this._div = $('<div class="SpiffCalendarDialog" style="display: none"></div>');
+    this._div = $('<div class="SpiffCalendarDialog modal" style="display: none"></div>');
     var that = this;
     var settings = $.extend(true, {
         event_data: {date: new Date()},

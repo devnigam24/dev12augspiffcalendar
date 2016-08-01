@@ -13,12 +13,14 @@ padding: 0;
 .SpiffCalendarPopup .qtip-content {
 max-width: none;
 max-height: none;
+padding-bottom: .5em;
 }
 
 .SpiffCalendarPopup {
 margin: 0;
 padding: 0;
-width: 30em;
+width: 30vw;
+min-width: 35em;
 }
 
 .SpiffCalendarPopup input {
@@ -41,19 +43,16 @@ font-weight: bold;
 }
 
 .SpiffCalendarPopup #popup-detail div {
-font-size: 1.4em;
-line-height: 1.2em;
 }
 
 .SpiffCalendarPopup #popup-buttons {
 text-align: right;
 margin-top: 1em;
+white-space: nowrap;
+padding-bottom: .5em;
 }
 
 .SpiffCalendarPopup button {
-margin-left: .5em;
-padding: .4em;
-border: 1px solid #ccc;
 }
 
 .SpiffCalendarPopup #button-delete {
