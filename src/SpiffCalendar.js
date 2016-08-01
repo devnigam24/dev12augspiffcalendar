@@ -329,8 +329,8 @@ var SpiffCalendar = function(div, options) {
 
     this.refresh = function() {
         var range = that._get_visible_range();
-        settings.on_refresh(that);
         settings.event_api(range.start, range.last, function(data) {
+            settings.on_refresh(that);
             $.each(data, function(index, day_data) {
                 var date = day_data.date.replace(/-0/g, '-');
                 var day_div = that._div.find('.day[data-date="' + date + '"]');
