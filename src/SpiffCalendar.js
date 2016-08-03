@@ -406,8 +406,8 @@ var SpiffCalendar = function(div, options) {
                 }
             }));
             table.find('.day').mousedown(function() {
-                table.find('.day').removeClass('active z-depth-3');
-                $(this).addClass('active z-depth-3');
+                table.find('.day').removeClass('active');
+                $(this).addClass('active');
             });
         }
 
