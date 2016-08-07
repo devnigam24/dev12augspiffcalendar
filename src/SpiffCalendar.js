@@ -110,108 +110,27 @@ var SpiffCalendar = function(div, options) {
         start: undefined,
         last: undefined,
         event_api: function() { return {}; },
-        event_renderer: function(e) { return e; },
-        event_popup: undefined,
+        event_renderer: undefined,
         footnote_renderer: function(e) { return e; },
         on_move_event: function() {},
         on_refresh: function() {}
     }, options);
-    var qtip_settings = {
-        style: {
-            classes: 'SpiffCalendarPopup qtip-light qtip-shadow',
-        },
-        show: {
-            event: 'click',
-            solo: true
-        },
-        hide: {
-            fixed: true,
-            event: 'unfocus'
-        },
-        events: {
-            render: function(event, api) {
-                $(window).bind('keydown', function(e) {
-                    if (e.keyCode === 27) { api.hide(); }
-                });
-            },
-            hide: function(event, api) {
-                if (!event.originalEvent)
-                    return;
-                var target = $(event.originalEvent.target);
-                if (target.closest('.ui-datepicker').length == 1
-                        || target.closest('.SpiffCalendarPopup').length == 1)
-                    event.preventDefault();
-            }
-        },
-        position: {
-            my: 'bottom center',
-            target: 'mouse',
-            viewport: this._div,
-            adjust: {
-                mouse: false
-            }
-        }
-    };
 
     if (this._div.length != 1)
         throw new Error('selector needs to match exactly one element');
     this._div.addClass('SpiffCalendar');
 
-    this._calendar_event = function(event_data, date) {
+    this._calendar_event = function(event_data) {
         var html = $('<div class="event"></div>');
         html.data('event', event_data);
-        if (event_data.time)
-            html.addClass('timed');
-        if (event_data.freq_type != null && event_data.freq_type !== 'ONE_TIME')
-            html.addClass('recurring');
-        if (event_data.is_exception)
-            html.addClass('exception');
-
-        // Add a popup for viewing event details.
-        if (settings.event_popup) {
-            html.qtip($.extend(true, qtip_settings, {
-                content: {
-                    text: function(event, api) {
-                        data = $.extend(true, event_data, {date: date});
-                        settings.event_popup.update(data);
-                        return settings.event_popup._div;
-                    }
-                },
-            }));
-            html.click(function(e) {
-                e.stopPropagation();
-            });
-        }
-
-        // Make events draggable.
-        html.draggable({
-            appendTo: this._div,
-            helper: function(e, ui) {
-                var original = $(e.target).closest(".ui-draggable");
-                return $(this).clone().css({width: original.width()});
-            },
-            revert: "invalid",
-            cursor: "move",
-            containment: this._div.find('.calendar'),
-            revert: 'invalid',
-            revertDuration: 100,
-            start: function (e, ui) {
-                $(this).hide();
-            },
-            stop: function (event, ui) {
-                $(this).show();
-            }
-        });
-
-        // Render the event content.
-        html.append(settings.event_renderer(html, event_data));
+        html.append(settings.event_renderer.render(that._div, html, event_data));
         return html;
     };
 
     this.add_event = function(date, event_data) {
         date = isodate(date);
         var events = that._div.find('*[data-date="' + date + '"] .events');
-        events.append(that._calendar_event(event_data, date));
+        events.append(that._calendar_event(event_data));
     };
 
     this.remove_event = function(event_data) {
@@ -237,7 +156,7 @@ var SpiffCalendar = function(div, options) {
                 var event_data = ui.draggable.data('event');
                 ui.draggable.remove();
                 settings.on_move_event(event_data, $(this).data('date'));
-                $(this).find('.events').append(that._calendar_event(event_data, date));
+                $(this).find('.events').append(that._calendar_event(event_data));
             }
         });
 
@@ -337,7 +256,7 @@ var SpiffCalendar = function(div, options) {
                 var events = day_div.find('.events');
                 events.empty();
                 $.each(day_data.events, function(index, ev) {
-                    events.append(that._calendar_event(ev, date));
+                    events.append(that._calendar_event(ev));
                 });
                 var footnote = settings.footnote_renderer(day_data.footnote);
                 day_div.find(".footnote").text(footnote);
@@ -390,26 +309,80 @@ var SpiffCalendar = function(div, options) {
         this._div.find("#current").click(this.to_today);
         this._div.find("#next").click(this.next);
 
-        if (settings.event_popup) {
-            table.find(".day").qtip($.extend(true, qtip_settings, {
-                events: {
-                    visible: function() {
-                        $(this).find('input:first').focus();
-                    }
-                },
-                content: {
-                    text: function(event, api) {
-                        var date = from_isodate($(api.elements.target).attr('data-date'));
-                        settings.event_popup.update({date: date}, true);
-                        return settings.event_popup._div;
-                    }
-                }
-            }));
-            table.find('.day').mousedown(function() {
-                table.find('.day').removeClass('active');
-                $(this).addClass('active');
+        that._div.mousedown(function(e) {
+            var day = $(e.target).closest('.day');
+            if (day.is('.day.active'))
+                return;
+            table.find('.day.active').each(function(index, day) {
+                $(day).removeClass('active');
+                $(day).css({
+                    top: 0,
+                    left: 0,
+                    width: 'auto',
+                    height: 'auto'
+                });
+                $(day).find('.event').removeClass('unfolded');
             });
-        }
+            table.find('.day.placeholder').remove();
+        });
+
+        table.find('.day').click(function(e) {
+            var day = $(e.target).closest('.day');
+            if (!day.is('.day') || day.is('.active'))
+                return;
+
+            // Create an exact clone of the day as a placeholder. The reason
+            // that we don't use the clone as the editor is that a) there may be
+            // events running on the original day, and b) we would have to
+            // either use clone(true), causing problems with per-event
+            // data not being copied, or re-init/re-draw the day from scratch,
+            // causing potential flickering and other headaches.
+            var placeholder = day.clone();
+            placeholder.css('visibility', 'hidden');
+            placeholder.addClass('placeholder');
+
+            var w = day.width()
+            var h = day.height()
+            day.css({
+                top: day.offset().top,
+                left: day.offset().left,
+                width: w,
+                height: h
+            });
+            day.addClass('active');
+            placeholder.insertAfter(day);
+
+            // Resize the day.
+            var top = day.offset().top - h/2;
+            var left = day.offset().left - w/2;
+            h = 2*h;
+            w = 2*w;
+
+            if (top < 0)
+                top = 20;
+            if (top + h > $(window).height())
+                top -= h/4;
+            if (top < 0) {
+                top = 20;
+                h = $(window).height() - 40;
+            }
+
+            if (left < 0)
+                left = 20;
+            if (left + w > $(window).width())
+                left -= w/4;
+            if (left < 0) {
+                left = 20;
+                w = $(window).width() - 40;
+            }
+
+            day.animate({
+                top: top,
+                left: left,
+                width: w,
+                height: h
+            }, 200);
+        });
 
         this._div.children().bind('wheel mousewheel DOMMouseScroll', function (event) {
             if (event.originalEvent.wheelDelta > 0 || event.originalEvent.detail < 0)
@@ -461,129 +434,175 @@ var SpiffCalendar = function(div, options) {
 };
 
 // ======================================================================
-// Popup for adding a new event / editing a single event of a series.
+// Renderer for events, for both inline edit-mode and inline view-mode.
 // ======================================================================
-var SpiffCalendarPopup = function(options) {
-    this._div = undefined;
+var SpiffCalendarEventRenderer = function(options) {
     var that = this;
     var settings = $.extend(true, {
         event_dialog: undefined,
         render_extra_content: function() {},
         serialize_extra_content: function() {},
         deserialize_extra_content: function() {},
-        on_save_before: function(popup) {
-            if (!validate_all(popup._div.find('input')))
+        on_save_before: function(html) {
+            if (!validate_all(html.find('input')))
                 return false;
         },
-        on_save: function(popup, data) {},
-        on_edit_before: function(popup) {},
-        on_edit: function(popup, data) {
+        on_save: function(html, data) {},
+        on_edit_before: function(html) {},
+        on_edit: function(html, data) {
             settings.event_dialog.show(data);
         },
         on_delete_before: function(event_data) {},
-        on_delete: function(popup, data) {},
+        on_delete: function(html, data) {},
     }, options);
 
-    this.update = function(event_data, is_new_event) {
-        that._div = $('\
-                <div id="content" style="display: none">\
+    this.render = function(calendar_div, html, event_data) {
+        if (event_data.time)
+            html.addClass('timed');
+        if (event_data.freq_type != null && event_data.freq_type !== 'ONE_TIME')
+            html.addClass('recurring');
+        if (event_data.is_exception)
+            html.addClass('exception');
+
+        html.append('\
+                <div class="label">\
+                    <span class="label-time"></span>\
+                    <span class="label-name"></span>\
+                </div>\
+                <div class="editor">\
                     <div class="general">\
                         <input class="general-name" type="text" placeholder="Event"/>\
                         <input class="general-date" type="text" placeholder="Date"/>\
                     </div>\
                     <div id="extra-content"></div>\
-                    <div id="popup-buttons">\
-                        <button id="button-delete" class="btn waves-effect">Delete</button>\
-                        <button id="button-edit" class="btn waves-effect">Edit Series...</button>\
-                        <button id="button-save" class="btn waves-effect">Save</button>\
+                    <div id="event-buttons">\
+                        <a id="button-delete" class="btn waves-effect red"><i class="material-icons">delete</i></a>\
+                        <a id="button-edit" class="btn waves-effect"><i class="material-icons">repeat</i></a>\
+                        <a id="button-save" class="btn waves-effect"><i class="material-icons">done</i></a>\
                     </div>\
                 </div>');
-        that._div.find('.general-date').datepicker({
+        html.find('.general-date').datepicker({
             onSelect: function() {
                 this.blur();
                 $(this).change();
             }
         });
 
-        // If no event_data was passed, assume we are adding a new event.
+        var is_new_event = html.text() == '';
         if (is_new_event == true) {
-            that._div.find('.general-date').hide();
-            that._div.find('#button-delete').hide();
+            html.find('.general-date').hide();
+            html.find('#button-delete').hide();
         }
 
         // Define input validators for pre-defined fields.
-        that._div.find('input').data('validator', validator_required);
+        html.find('input').data('validator', validator_required);
 
         // Extra content may be provided by the user.
-        settings.render_extra_content(that._div.find('#extra-content'),
+        settings.render_extra_content(html.find('#extra-content'),
                                       event_data,
                                       is_new_event);
 
         // Connect event handlers for input validation.
-        var save_btn = this._div.find('#button-save');
-        that._div.find('input').keydown(function(e) {
+        var save_btn = html.find('#button-save');
+        html.find('input').keydown(function(e) {
             $(this).removeClass('error');
             if (e.keyCode === 13)
                 save_btn.click();
         });
-        that._div.find('input').bind('keyup change select', function(e) {
-            var nothidden = that._div.find("input:not([style$='display: none;'])");
+        html.find('input').bind('keyup change select', function(e) {
+            var nothidden = html.find("input:not([style$='display: none;'])");
             var invalid = get_invalid_fields(nothidden);
             save_btn.prop("disabled", invalid.length != 0);
         });
 
         // Connect button event handlers.
-        save_btn.click(function() {
-            if (settings.on_save_before(that) == false)
+        save_btn.click(function(event) {
+            if (settings.on_save_before(html) == false)
                 return;
-            that._serialize(event_data, true);
-            settings.on_save(that, event_data);
-            that._div.closest('.qtip').hide();
+            that._serialize(html, event_data, true);
+            if (settings.on_save(html, event_data) != false)
+                html.removeClass('unfolded');
+            event.stopPropagation(); // prevent from re-opening
         });
-        that._div.find('#button-edit').click(function() {
-            if (settings.on_edit_before(that) == false)
+        html.find('#button-edit').click(function(event) {
+            if (settings.on_edit_before(html) == false)
                 return;
-            that._serialize(event_data, false);
-            settings.on_edit(that, event_data);
-            that._div.closest('.qtip').hide();
+            that._serialize(html, event_data, false);
+            if (settings.on_edit(html, event_data) != false)
+                html.removeClass('unfolded');
         });
-        that._div.find('#button-delete').click(function() {
-            if (settings.on_save_before(that) == false)
-                return;
-            that._serialize(event_data, false);
-            settings.on_delete(that, event_data);
-            that._div.closest('.qtip').hide();
+        html.find('#button-delete').click(function(event) {
+            that._serialize(html, event_data, false);
+            if (settings.on_delete(html, event_data) != false)
+                html.removeClass('unfolded');
+            event.stopPropagation(); // prevent from re-opening
         });
 
         // Add data to the UI.
-        that._div.find('.general-name').val(event_data.name);
-        that._div.find('.general-date').datepicker("setDate",
+        if (event_data.time)
+            html.find('.label-time').show()
+        else
+            html.find('.label-time').hide()
+        html.find('.label-time').text(event_data.time);
+        html.find('.label-name').text(event_data.name);
+        html.find('.general-time').text(event_data.time);
+        html.find('.general-name').val(event_data.name);
+        html.find('.general-date').datepicker("setDate",
                 from_isodate(event_data.date));
+
 
         // If the user provided settings.render_extra_content, he may
         // also want to populate it with data.
-        var extra = that._div.find('#extra-content');
+        var extra = html.find('#extra-content');
         settings.deserialize_extra_content(extra, event_data);
 
         // Trigger validation.
-        that._div.find('input').keyup();
+        html.find('input').keyup();
+        html.draggable({
+            appendTo: calendar_div,
+            helper: function(e, ui) {
+                var original = $(e.target).closest(".ui-draggable");
+                return $(this).clone().css({width: original.width()});
+            },
+            revert: "invalid",
+            cursor: "move",
+            revertDuration: 100,
+            start: function (e, ui) {
+                $(this).hide();
+            },
+            stop: function (event, ui) {
+                $(this).show();
+            }
+        });
+
+        $('body').mousedown(function(e) {
+            if ($(e.target).closest('.event').data('event') == event_data)
+                return;
+            if ($(e.target).closest('.ui-datepicker').length)
+                return;
+            html.removeClass('unfolded');
+        });
+
+        html.click(function() {
+            $(this).addClass('unfolded');
+        });
+
+        settings.render_extra_content(html, event_data);
     };
 
-    this._serialize = function(event_data, include_date) {
-        var date = that._div.find('.general-date').datepicker('getDate');
+    this._serialize = function(html, event_data, include_date) {
+        var date = html.find('.general-date').datepicker('getDate');
         if (!event_data)
             event_data = {};
         if (include_date == true)
             event_data.date = date;
-        event_data.name = that._div.find('.general-name').val();
+        event_data.name = html.find('.general-name').val();
 
         // If the user provided settings.render_extra_content, he may
         // also want to serialize it.
-        var extra = that._div.find('#extra-content');
+        var extra = html.find('#extra-content');
         settings.serialize_extra_content(extra, event_data);
     };
-
-    this.update({}, true);
 };
 
 // ======================================================================
@@ -909,6 +928,8 @@ var SpiffCalendarEventDialog = function(options) {
         // Update general event data.
         this._div.find('#general-name').val(settings.event_data.name);
         var date = from_isodate(settings.event_data.date);
+        if (!date)
+            date = new Date();
         this._div.find("#general-date").datepicker('setDate', date);
 
         var freq_type = settings.event_data.freq_type;

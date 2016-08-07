@@ -6,26 +6,24 @@
 <meta http-equiv="content-type" content="text/html;charset=utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=10" />
 <link rel="stylesheet" type="text/css" href="lib/jquery-ui.min.css"/>
-<link rel="stylesheet" type="text/css" href="lib/jquery.qtip.min.css"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/css/materialize.min.css">
 <link rel="stylesheet" type="text/css" href="../css/SpiffCalendar.css" />
 <!--[if IE]>
 <link rel="stylesheet" type="text/css" href="../css/iefix.css" />
 <![endif]-->
 <link rel="stylesheet" type="text/css" href="../css/EventDialog.css" />
-<link rel="stylesheet" type="text/css" href="../css/EventPopup.css" />
 <link rel="stylesheet" type="text/css" href="demo.css" />
 <script src="lib/jquery-3.0.0.min.js" type="text/javascript"></script>
 <script src="lib/jquery-ui.min.js" type="text/javascript"></script>
 <script src="lib/jquery.i18n.min.js" type="text/javascript"></script>
-<script src="lib/jquery.qtip.min.js" type="text/javascript"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js"></script>
 <script src="../src/SpiffCalendar.js" type="text/javascript"></script>
 <script type="text/javascript">
 $(document).ready(function() {
     // Prepare dialog windows.
     var event_dialog = new SpiffCalendarEventDialog();
-    var event_popup = new SpiffCalendarPopup({
+    var event_renderer = new SpiffCalendarEventRenderer({
         event_dialog: event_dialog
     });
 
@@ -33,7 +31,7 @@ $(document).ready(function() {
     var calendar = new SpiffCalendar($('#demo-calendar'), {
         href: window.location.hash.substring(1),
         period: "month", // "month", or an integer for number of days
-        event_popup: event_popup,
+        event_renderer: event_renderer,
         event_dialog: event_dialog,
         event_api: function(start_date, end_date, success_cb) {
             success_cb([
@@ -55,11 +53,6 @@ $(document).ready(function() {
                     ]
                 }
             ]);
-        },
-        event_renderer: function(container, event_data) {
-            if (event_data.time)
-                return event_data.time + ' ' + event_data.name;
-            return $('<span class="fancy"></span>').text(event_data.name);
         },
         footnote_renderer: function(footnote_data) {
             if (!footnote_data)

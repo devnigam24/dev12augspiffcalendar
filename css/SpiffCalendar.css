@@ -78,6 +78,7 @@ padding: 1em;
 
 .SpiffCalendar .day {
 overflow: hidden;
+position: relative;
 padding: 0;
 margin: 3px;
 }
@@ -91,6 +92,10 @@ opacity: .5;
 }
 
 .SpiffCalendar .day.active {
+position: absolute;
+z-index: 13;
+margin: 0;
+padding: .5em;
 }
 
 .SpiffCalendar .day .wrapper {
@@ -131,7 +136,8 @@ padding: 3px;
 }
 
 .SpiffCalendar .event {
-flex: 0;
+flex: 0.00001;   /* Setting to 0 prevents transitions in chrome 41 */
+overflow: hidden;
 margin: 1px .2em;
 border-radius: 3px;
 z-index: 12;
@@ -139,6 +145,63 @@ color: #666;
 padding: .1em .2em;
 text-align: left;
 min-height: 1.7em;
+-webkit-transition: min-height .2s, background-color .2s;
+-moz-transition: min-height .2s, background-color .2s;
+-o-transition: min-height .2s, background-color .2s;
+transition: min-height .2s, background-color .2s;
+}
+
+.SpiffCalendar .day.active .event {
+z-index: 15;
+}
+
+.SpiffCalendar .ui-draggable-dragging {
+z-index: 50;
+}
+
+.SpiffCalendar .event input {
+background-color: transparent;
+border-radius: 2px;
+border: none;
+height: auto;
+padding: .3em;
+margin: .2em 0;
+border-bottom: 1px solid grey;
+-webkit-box-sizing: border-box;
+-moz-box-sizing: border-box;
+box-sizing: border-box;
+}
+
+.SpiffCalendar .event input.error {
+background-color: #f66;
+border: 1px solid red;
+color: black;
+}
+
+.SpiffCalendar .event .editor {
+max-height: 0.0001px;
+overflow: hidden;
+-webkit-transition: max-height .4s;
+-moz-transition: max-height .4s;
+-o-transition: max-height .4s;
+transition: max-height .4s;
+}
+
+.SpiffCalendar .event.unfolded .editor {
+max-height: 500px;
+}
+
+.SpiffCalendar .event.unfolded .label {
+display: none;
+}
+
+.SpiffCalendar #event-buttons {
+margin: .5em .3em;
+text-align: right;
+}
+
+.SpiffCalendar #button-delete {
+float: left;
 }
 
 .SpiffCalendar .event.recurring {
@@ -155,4 +218,24 @@ padding-left: 20px;
 
 .SpiffCalendar .event:not(.timed) {
 background-color: #f90;
+}
+
+.SpiffCalendar .event.unfolded {
+flex: 0 1 auto;
+padding-left: .2em;
+background-image: none;
+box-shadow: 0 1px 4px rgba(0, 0, 0, .3);
+padding: .4em;
+}
+
+.SpiffCalendar .event.unfolded a {
+padding-left: .5em;
+padding-right: .5em;
+width: 3.5rem;
+height: 1.8rem;
+}
+
+.SpiffCalendar .event.unfolded a i {
+line-height: 1rem;
+height: 1rem;
 }
