@@ -592,6 +592,8 @@ var SpiffCalendarEventRenderer = function(options) {
         });
 
         html.click(function(event) {
+            if ($(this).is('.unfolded'))
+                return;
             $(this).addClass('unfolded');
             $(this).find('input:first').focus();
         });
