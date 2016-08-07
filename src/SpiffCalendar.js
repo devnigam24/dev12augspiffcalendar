@@ -130,7 +130,9 @@ var SpiffCalendar = function(div, options) {
     this.add_event = function(date, event_data) {
         date = isodate(date);
         var events = that._div.find('*[data-date="' + date + '"] .events');
-        events.append(that._calendar_event(event_data));
+        var theevent = that._calendar_event(event_data);
+        events.append(theevent);
+        return theevent;
     };
 
     this.remove_event = function(event_data) {
@@ -330,6 +332,13 @@ var SpiffCalendar = function(div, options) {
             var day = $(e.target).closest('.day');
             if (!day.is('.day') || day.is('.active'))
                 return;
+
+            // Create a new event if needed.
+            if ($(e.target).closest('.event').length == 0) {
+                var date = from_isodate(day.attr('data-date'));
+                var theevent = that.add_event(date, {date: date});
+                theevent.click();
+            }
 
             // Create an exact clone of the day as a placeholder. The reason
             // that we don't use the clone as the editor is that a) there may be
@@ -584,11 +593,12 @@ var SpiffCalendarEventRenderer = function(options) {
             html.removeClass('unfolded');
         });
 
-        html.click(function() {
+        html.click(function(event) {
             $(this).addClass('unfolded');
+            $(this).find('input:first').focus();
         });
 
-        settings.on_render(html, event_data);
+        //settings.on_render(html, event_data);
     };
 
     this._serialize = function(html, event_data, include_date) {
