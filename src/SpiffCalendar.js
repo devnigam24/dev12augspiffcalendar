@@ -311,7 +311,7 @@ var SpiffCalendar = function(div, options) {
         this._div.find("#current").click(this.to_today);
         this._div.find("#next").click(this.next);
 
-        that._div.mousedown(function(e) {
+        $('body').mousedown(function(e) {
             var day = $(e.target).closest('.day');
             if (day.is('.day.active'))
                 return;
