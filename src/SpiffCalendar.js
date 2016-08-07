@@ -280,22 +280,22 @@ var SpiffCalendar = function(div, options) {
         that._div.append('\
             <div id="navbar">\
                 <div class="nav-buttons">\
-                    <input id="previous" type="button" class="btn waves-effect hoverable" value="&lt;"/>\
-                    <input id="current" type="button" class="btn waves-effect hoverable" value="&bull;"/>\
-                    <input id="next" type="button" class="btn waves-effect hoverable" value="&gt;"/>\
+                    <input id="previous" type="button" class="btn hoverable" value="&lt;"/>\
+                    <input id="current" type="button" class="btn hoverable" value="&bull;"/>\
+                    <input id="next" type="button" class="btn hoverable" value="&gt;"/>\
                     <h2 id="month"></h2>\
                 </div>\
                 <div class="range-buttons">\
                     <input type="button"\
-                        class="btn waves-effect hoverable"\
+                        class="btn hoverable"\
                         value="Week"\
                         data-target="7"/>\
                     <input type="button"\
-                        class="btn waves-effect hoverable"\
+                        class="btn hoverable"\
                         value="Month"\
                         data-target="month"/>\
                     <input type="button"\
-                        class="btn waves-effect hoverable"\
+                        class="btn hoverable"\
                         value="2 Weeks"\
                         data-target="14"/>\
                 </div>\
