@@ -323,7 +323,6 @@ var SpiffCalendar = function(div, options) {
                     width: 'auto',
                     height: 'auto'
                 });
-                $(day).find('.event').removeClass('unfolded');
             });
             table.find('.day.placeholder').remove();
         });
@@ -589,6 +588,8 @@ var SpiffCalendarEventRenderer = function(options) {
             if ($(e.target).closest('.ui-datepicker').length)
                 return;
             html.removeClass('unfolded');
+            if (!event_data.id)
+                html.remove();
         });
 
         html.click(function(event) {
