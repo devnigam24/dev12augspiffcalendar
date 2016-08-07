@@ -192,6 +192,13 @@ var SpiffCalendar = function(div, options) {
         return html;
     };
 
+    this.set_period = function(period) {
+        if (period == "month")
+            settings.period = period;
+        else
+            settings.period = parseInt(period);
+    };
+
     this.set_range = function(start, last) {
         // Defines the days that the user wants to see. The actual visible
         // range may differ: This range may later be expanded to begin at the
@@ -205,6 +212,10 @@ var SpiffCalendar = function(div, options) {
             settings.start = new Date(start.getFullYear(),
                                       start.getMonth(),
                                       1);
+        else if (settings.period%7 == 0)
+            settings.start = new Date(start.getFullYear(),
+                                      start.getMonth(),
+                                      start.getDate() - start.getDay());
         else
             settings.start = start;
         if (typeof last !== "undefined" && last >= settings.start) {
@@ -239,11 +250,7 @@ var SpiffCalendar = function(div, options) {
         if (!href)
             return settings.period + '/' + isodate(settings.start);
         href = href.split('/');
-        var period = href[0];
-        if (period == "month")
-            settings.period = period;
-        else
-            settings.period = parseInt(period);
+        that.set_period(href[0]);
         if (href.length > 1)
             var start = from_isodate(href[1]);
         that.set_range(start);
@@ -272,10 +279,26 @@ var SpiffCalendar = function(div, options) {
         that._div.empty();
         that._div.append('\
             <div id="navbar">\
-                <h2 id="month"></h2>\
-                <input id="previous" type="button" class="btn hoverable" value="&lt;"/>\
-                <input id="current" type="button" class="btn hoverable" value="&bull;"/>\
-                <input id="next" type="button" class="btn hoverable" value="&gt;"/>\
+                <div class="nav-buttons">\
+                    <input id="previous" type="button" class="btn waves-effect hoverable" value="&lt;"/>\
+                    <input id="current" type="button" class="btn waves-effect hoverable" value="&bull;"/>\
+                    <input id="next" type="button" class="btn waves-effect hoverable" value="&gt;"/>\
+                    <h2 id="month"></h2>\
+                </div>\
+                <div class="range-buttons">\
+                    <input type="button"\
+                        class="btn waves-effect hoverable"\
+                        value="Week"\
+                        data-target="7"/>\
+                    <input type="button"\
+                        class="btn waves-effect hoverable"\
+                        value="Month"\
+                        data-target="month"/>\
+                    <input type="button"\
+                        class="btn waves-effect hoverable"\
+                        value="2 Weeks"\
+                        data-target="14"/>\
+                </div>\
             </div>\
             <table>\
                 <tr>\
@@ -312,6 +335,11 @@ var SpiffCalendar = function(div, options) {
         this._div.find("#previous").click(this.previous);
         this._div.find("#current").click(this.to_today);
         this._div.find("#next").click(this.next);
+        this._div.find(".range-buttons input").click(function() {
+            that.set_period($(this).data('target'));
+            that.set_range(settings.start);
+            that._init();
+        });
 
         $('body').mousedown(function(e) {
             var day = $(e.target).closest('.day');
