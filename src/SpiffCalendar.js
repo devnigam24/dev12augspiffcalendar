@@ -498,8 +498,7 @@ var SpiffCalendarEventRenderer = function(options) {
             }
         });
 
-        var is_new_event = html.text() == '';
-        if (is_new_event == true) {
+        if (!event_data.id) {
             html.find('.general-date').hide();
             html.find('#button-delete').hide();
         }
@@ -509,8 +508,7 @@ var SpiffCalendarEventRenderer = function(options) {
 
         // Extra content may be provided by the user.
         settings.render_extra_content(html.find('#extra-content'),
-                                      event_data,
-                                      is_new_event);
+                                      event_data);
 
         // Connect event handlers for input validation.
         var save_btn = html.find('#button-save');
@@ -624,7 +622,7 @@ var SpiffCalendarEventDialog = function(options) {
     var that = this;
     var settings = $.extend(true, {
         event_data: {date: new Date()},
-        render_extra_content: function() {},
+        render_extra_content: function(div, event_data) {},
         serialize_extra_content: function() {},
         deserialize_extra_content: function() {},
         on_save: function(event_data) {},
