@@ -197,14 +197,16 @@ var SpiffCalendar = function(div, options) {
         // range may differ: This range may later be expanded to begin at the
         // a Sunday, for example.
         var today = new Date();
-        if (typeof start !== "undefined")
-            settings.start = start;
-        else if (settings.period == "month")
-            settings.start = new Date(today.getFullYear(), today.getMonth(), 1);
+        if (typeof start === "undefined")
+            start = new Date(today.getFullYear(),
+                             today.getMonth(),
+                             today.getDate() - today.getDay());
+        if (settings.period == "month")
+            settings.start = new Date(start.getFullYear(),
+                                      start.getMonth(),
+                                      1);
         else
-            settings.start = new Date(today.getFullYear(),
-                                      today.getMonth(),
-                                      today.getDate() - today.getDay());
+            settings.start = start;
         if (typeof last !== "undefined" && last >= settings.start) {
             settings.last = last;
             return;
