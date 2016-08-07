@@ -38,8 +38,8 @@ $(document).ready(function() {
                 {
                     date: '2016-07-09',
                     events: [
-                        {freq_type: 'ONE_TIME', name: 'Test1'},
-                        {freq_type: 'ONE_TIME', is_exception: true, time: '10:00', name: 'Test2'}
+                        {date: '2016-07-09', freq_type: 'ONE_TIME', name: 'Test1'},
+                        {date: '2016-07-09', freq_type: 'ONE_TIME', is_exception: true, time: '10:00', name: 'Test2'}
                     ],
                     footnote: {
                         text: 'day before tomorrow'
@@ -48,8 +48,8 @@ $(document).ready(function() {
                 {
                     date: '2016-07-19',
                     events: [
-                        {freq_type: 'WEEKLY', name: 'Foo'},
-                        {name: 'Bar'}
+                        {date: '2016-07-19', freq_type: 'WEEKLY', name: 'Foo'},
+                        {date: '2016-07-19', name: 'Bar'}
                     ]
                 }
             ]);

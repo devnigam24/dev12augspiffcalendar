@@ -127,8 +127,8 @@ var SpiffCalendar = function(div, options) {
         return html;
     };
 
-    this.add_event = function(date, event_data) {
-        date = isodate(date);
+    this.add_event = function(event_data) {
+        var date = isodate(event_data.date);
         var events = that._div.find('*[data-date="' + date + '"] .events');
         var theevent = that._calendar_event(event_data);
         events.append(theevent);
@@ -336,7 +336,7 @@ var SpiffCalendar = function(div, options) {
             // Create a new event if needed.
             if ($(e.target).closest('.event').length == 0) {
                 var date = from_isodate(day.attr('data-date'));
-                var theevent = that.add_event(date, {date: date});
+                var theevent = that.add_event({date: date});
                 theevent.click();
             }
 
