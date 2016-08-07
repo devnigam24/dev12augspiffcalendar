@@ -242,8 +242,11 @@ background-color: #f90;
 flex: 0 1 auto;
 padding-left: .2em;
 background-image: none;
-box-shadow: 0 1px 4px rgba(0, 0, 0, .3);
+background-color: white;
+border: 1px solid #f90;
+box-shadow: 0 2px 5px rgba(0, 0, 0, .3);
 padding: .4em;
+margin-bottom: .4em;
 }
 
 .SpiffCalendar .event.unfolded a {
