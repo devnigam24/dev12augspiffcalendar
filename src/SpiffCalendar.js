@@ -443,6 +443,7 @@ var SpiffCalendarEventRenderer = function(options) {
         render_extra_content: function() {},
         serialize_extra_content: function() {},
         deserialize_extra_content: function() {},
+        on_render: function(html, event_data) {},
         on_save_before: function(html) {
             if (!validate_all(html.find('input')))
                 return false;
@@ -587,7 +588,7 @@ var SpiffCalendarEventRenderer = function(options) {
             $(this).addClass('unfolded');
         });
 
-        settings.render_extra_content(html, event_data);
+        settings.on_render(html, event_data);
     };
 
     this._serialize = function(html, event_data, include_date) {
