@@ -535,9 +535,24 @@ var SpiffCalendarEventRenderer = function(options) {
         // Define input validators for pre-defined fields.
         html.find('input').data('validator', validator_required);
 
+        // Add data to the UI.
+        if (event_data.time)
+            html.find('.label-time').show()
+        else
+            html.find('.label-time').hide()
+        html.find('.label-time').text(event_data.time);
+        html.find('.label-name').text(event_data.name);
+        html.find('.general-time').text(event_data.time);
+        html.find('.general-name').val(event_data.name);
+        html.find('.general-date').datepicker("setDate",
+                from_isodate(event_data.date));
+
         // Extra content may be provided by the user.
-        settings.render_extra_content(html.find('#extra-content'),
-                                      event_data);
+        // If the user provided settings.render_extra_content, he may
+        // also want to populate it with data.
+        var extra = html.find('#extra-content');
+        settings.render_extra_content(extra, event_data);
+        settings.deserialize_extra_content(extra, event_data);
 
         // Connect event handlers for input validation.
         var save_btn = html.find('#button-save');
@@ -574,24 +589,6 @@ var SpiffCalendarEventRenderer = function(options) {
                 html.removeClass('unfolded');
             event.stopPropagation(); // prevent from re-opening
         });
-
-        // Add data to the UI.
-        if (event_data.time)
-            html.find('.label-time').show()
-        else
-            html.find('.label-time').hide()
-        html.find('.label-time').text(event_data.time);
-        html.find('.label-name').text(event_data.name);
-        html.find('.general-time').text(event_data.time);
-        html.find('.general-name').val(event_data.name);
-        html.find('.general-date').datepicker("setDate",
-                from_isodate(event_data.date));
-
-
-        // If the user provided settings.render_extra_content, he may
-        // also want to populate it with data.
-        var extra = html.find('#extra-content');
-        settings.deserialize_extra_content(extra, event_data);
 
         // Trigger validation.
         html.find('input').keyup();
