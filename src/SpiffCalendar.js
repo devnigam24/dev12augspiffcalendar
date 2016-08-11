@@ -626,7 +626,7 @@ var SpiffCalendarEventRenderer = function(options) {
             $(this).find('input:first').focus();
         });
 
-        //settings.on_render(html, event_data);
+        settings.on_render(html, event_data);
     };
 
     this._serialize = function(html, event_data, include_date) {
