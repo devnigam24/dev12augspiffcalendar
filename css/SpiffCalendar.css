@@ -154,7 +154,6 @@ padding: 3px;
 }
 
 .SpiffCalendar .event {
-flex: 0.00001;   /* Setting to 0 prevents transitions in chrome 41 */
 overflow: hidden;
 margin: 1px .2em;
 border-radius: 3px;
